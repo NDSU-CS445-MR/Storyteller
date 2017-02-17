@@ -1,0 +1,8 @@
+{
+  "name": "storyteller",
+  "version": "0.0.1",
+  "description": "storyteller",
+  "dependencies": {
+    "express": "^4.14.1"
+  }
+}
