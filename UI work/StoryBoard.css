@@ -1,0 +1,60 @@
+﻿body
+{
+}
+
+p {
+margin-bottom: 0px;
+margin-top: 0px;
+}
+.notecard {
+background-image: url("Images/blank-index-card.gif");
+height: 320px;
+width: 540px;
+border: thick;
+border-color: black;
+}
+
+.notecardElement {
+    border-style: hidden;
+    background-color: rgba(0,0,0,0);
+    height: 30px;
+}
+
+.storyTitle {
+    width: 500px;
+    padding-left: 10px;
+    margin-bottom: 20px;
+}
+
+.pointsText {
+    width: 20px;
+    position: relative;
+    right: 0px;
+    top: 0px;
+
+}
+
+.storyBody {
+    width: 530px;
+    height: 70px;
+    margin-top: 0px;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
