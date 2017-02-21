@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html ng-app='app'>
+<head>
+</head>
+<body>
+    <div class="container">
+       <ng-view></ng-view>
+
+    </div>
+  <!--  Scripts-->
+  <!--BEGIN FIREBASE INITIALIZATION-->
+  <script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+  <script>
+    var config = {
+      apiKey: "AIzaSyBqqWTPOk3Jk-57yyY5yaB6eO2AU16mb3I",
+      authDomain: "storyteller-e1db0.firebaseapp.com",
+      databaseURL: "https://storyteller-e1db0.firebaseio.com",
+      storageBucket: "storyteller-e1db0.appspot.com",
+      messagingSenderId: "963004166071"
+    };
+    firebase.initializeApp(config);
+  </script>
+<!--END FIREBASE INITIALIZATION-->
+
+<!--EXTERNAL DEPENDANCIES-->
+<!--TODO: Host minified JS dependancies locally to prevent deprication-->
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.js"></script>
+<script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.js"></script>
+<!--BEGIN ANGULAR JS REFERENCES-->
+<!--TODO: Manage routes and angular dependancies through 1 JS file-->
+  <script type="text/javascript" src="/public/app.js"></script>
+  <script src="/public/login.js"></script>
+  <script src="/public/home.js"></script>
+  <script src="/public/fbRef.js"></script>
+<!--END ANGULAR JS REFERENCES-->
+  </body>
+</html>

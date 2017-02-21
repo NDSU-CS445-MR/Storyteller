@@ -1,8 +1,26 @@
 {
   "name": "storyteller",
-  "version": "0.0.1",
-  "description": "storyteller",
+  "version": "1.0.0",
+  "description": "A service for the creation of user stories",
+  "main": "index.js",
+  "scripts": {
+    "debug": "esw --color public -w",
+    "server": "node index.js",
+    "start": "npm-run-all --parallel debug server"
+  },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "express": "^4.14.1"
+    "angular": "^1.6.2",
+    "angularfire": "^2.3.0",
+    "express": "^4.14.1",
+    "firebase": "^3.6.9",
+    "http-server": "^0.9.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.15.0",
+    "eslint-config-angular": "^0.5.0",
+    "eslint-plugin-angular": "^1.6.1",
+    "npm-run-all": "^4.0.1"
   }
 }

@@ -1,0 +1,5 @@
+<div>
+    <button ng-click="vm.testConnection()">Test Firebase Connection</button>
+    <label ng-if="vm.connected" style="color: green">Successfully connected to: {{vm.connectionString}}</label>
+    <label ng-if="!vm.connected" style="color: red">!--Connection Unsuccesful--!</label>
+</div>

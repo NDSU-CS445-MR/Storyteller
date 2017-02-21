@@ -1,0 +1,21 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true
+    },
+    "extends": ["eslint:recommended","angular"],
+    "rules": {
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "warn",
+            "always"
+        ]
+    }
+}
