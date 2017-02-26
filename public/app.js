@@ -21,8 +21,8 @@ function config($routeProvider){
     .when('/home',{
         template: '<home></home>'
     })
-//     .when('/session',{
-//             template: "<session></session>"
-//     })
-        .otherwise('/login');
+    .when('/board',{
+        template: "<board></board>"
+    })
+    .otherwise('/login');
 }
