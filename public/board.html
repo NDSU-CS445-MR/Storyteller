@@ -1,11 +1,18 @@
 <div ng-repeat="story in vm.stories">
-    <label>{{story.name}}</label><button ng-click="vm.onClick_DeleteStory();">Delete</button>
-    <textarea rows="4" cols="50">
-    {{story.body}}
+    <div ng-if="story.status != 'discarded'">
+    <label>{{story.name}}</label>&nbsp&nbsp&nbsp<label>Status: </label><select ng-model="story.status" ng-change="vm.onChange_updateStory(story)">
+        <option ng-repeat="option in vm.storyStates" value="{{option}}">{{option}}</option>
+        </select></t><button ng-click="vm.onChange_updateStory(story);">Update</button><br>
+    <textarea rows="4" cols="50"ng-model="story.body">
+    
     </textarea>
+    <br>
+    </div>
 </div>
 <div>
-    <label>Name: </label><input type="text" ng-model="vm.newStory.name"></input><button ng-click="vm.onClick_CreateStory();">Create</button>
+    <label>Name: </label><input type="text" ng-model="vm.newStory.name"></input><button ng-click="vm.onClick_CreateStory();">Create</button><select ng-model="vm.newStory.status">
+        <option ng-repeat="option in vm.storyStates" value="{{option}}">{{option}}</option>
+        </select><br>
     <textarea rows="4" cols="50" ng-model="vm.newStory.body">
     </textarea>
 </div>

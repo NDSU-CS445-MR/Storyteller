@@ -1,28 +1,20 @@
 angular
-.module('app',['ngRoute','firebase']).config(config)
-.controller('LoginController', function($timeout,$location,firebaseFactory){
-	var vm = this;
-	vm.connected = false;
-	vm.connectionString;
-	vm.testConnection = function() {
-		firebaseFactory.testFirebaseConnection().then( function(res){
-			$timeout(function(){
-				vm.connectionString = res.ref;
-				vm.connected = res.connected;
-			});
-		});
-	};
-});
+.module('app',['ngRoute','firebase']).config(config);
+
 function config($routeProvider){
 	$routeProvider
-    .when('/login',{
+    //Route defined for login page
+	.when('/login',{
 		template: '<login></login>'
 	})
+	//Route defined for the user's home page
     .when('/home',{
         template: '<home></home>'
     })
+	//Route defined for boards
     .when('/board',{
-        template: "<board></board>"
+        template: '<board></board>'
     })
+	//Default back to login
     .otherwise('/login');
 }

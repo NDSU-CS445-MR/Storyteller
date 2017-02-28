@@ -6,8 +6,15 @@ angular.module('app').factory('firebaseFactory', function($q){
     var firebaseRef = firebase.database().ref();
     var databaseFactory = {};
     databaseFactory.sessionStore = {
-        currentUserKey: '',
-        currentBoardKey: ''
+        currentUserKey: '-Ke1QRQYnknYmWwC48VA',
+        currentBoardKey: '-KdwTvkimpR2Rq9YB38L'
+    };
+    databaseFactory.createUserProfile = function(){
+        var newUser = {
+            firstName: 'Testy',
+            lastName: 'McTestface'
+        };
+        this.sessionStore.currentUserKey = firebaseRef.child('users').push(newUser).getKey();
     };
     databaseFactory.testFirebaseConnection = function(){
         var deferred = $q.defer();
@@ -40,11 +47,11 @@ angular.module('app').factory('firebaseFactory', function($q){
     /* // delegate to angular 
     databaseFactory.deactivateBoard = function(board) { };
     */
-    databaseFactory.deleteBoard = function(board) {
+    databaseFactory.deleteBoard = function(/**board**/) {
       // firebaseRef.child('boards').
     };
     databaseFactory.getBoard = function(boardKey) {
-        var deferred = $q.defer();
+        //var deferred = $q.defer();
         var board = firebaseRef.child('boards').child(boardKey);
         return board;
     };
@@ -52,9 +59,11 @@ angular.module('app').factory('firebaseFactory', function($q){
     databaseFactory.createUserStory = function(story) {
         firebaseRef.child('boards').child(this.sessionStore.currentBoardKey).push(story);
     };
-    databaseFactory.deleteUserStory = function(story) {};
-    databaseFactory.getUserStories = function(board, user) {};
+    databaseFactory.updateStory = function() {
+
+    };
+    databaseFactory.getUserStories = function(/**board, user**/) {};
     // logging methods
-    databaseFactory.log = function(logRecord) {};
+    databaseFactory.log = function(/**logRecord**/) {};
     return databaseFactory;
 });
