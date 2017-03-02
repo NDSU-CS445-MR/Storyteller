@@ -88,3 +88,19 @@ table{
 td{
     padding: 10px;
 }
+
+.newNoteCard button{
+	width: 270px;
+	height: 30px;
+	background-color: gray;
+	color: white;
+}
+
+.newNoteCard #save:hover{
+	background-color: green;
+}
+
+.newNoteCard #cancel:hover{
+	background-color: red;
+}
+
