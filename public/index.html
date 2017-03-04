@@ -43,6 +43,28 @@
     <!--End style-->
 </head>
 <body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Storyteller | {{vm.boardname}}</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li class="active"><a href="/">Home</a></li>
+            <li><a href="">Notifications</a></li>
+            <li><a href="">Options</a></li>
+            <li><a href="">New User Story</a></li>
+            <div class="dropdown">
+                <button class="dropbtn">Sort by:</button>
+                <div class="dropdown-content">
+                    <a href="#">Sprint</a>
+                    <a href="#">User</a>
+                    <a href="#">Tag</a>
+                </div>
+            </div>
+            <li><a href="">Logout</a></li>
+        </ul>
+      </div>
+    </nav>
     <div class="container-fluid">
         <ng-view></ng-view>
     </div>

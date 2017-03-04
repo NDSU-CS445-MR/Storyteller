@@ -1,15 +1,7 @@
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">Storyteller | {{vm.boardname}}</a>
-    </div>
-    <ul class="nav navbar-nav">
-      <li class="active"><a href="/">Home</a></li>
-    </ul>
-  </div>
-</nav>
+
 
 <div ng-repeat="story in vm.stories">
+    <!--
     <div class="userstory" ng-if="story.status != 'discarded'">
         <div class="userstory_key">{{story.name}}</div>
         
@@ -27,14 +19,30 @@
                 <li ng-repeat="option in vm.storyStates"><a href="#">{{option}}</a></li>
             </ul>
         </div>
-        -->
+        ->
         <textarea rows="4" cols="50"ng-model="story.body"></textarea>
         <br>
         <button type="button" class="btn btn-default" ng-click="vm.onChange_updateStory(story);">Save</button><br>
 
     </div>
+    -->
+    <div class="notecard" ng-if="story.status != 'discarded'">
+        <div class="userstory_key">
+        <input class="userstory_name" type="text" ng-change="vm.onChange_updateStory(story);" ng-model="story.name">
+        <span style="position:absolute;right:0;top:0;margin:4px" class="badge">5</span>
+        <!--<p class="pointsText display notecardElement">-</p>-->
+        </div>
+        <!--drop down provided by W3 schools-->
+        <div class="notecardContent">
+            <textarea ng-change="vm.onChange_updateStory(story);" ng-model="story.body"></textarea>
+        </div>
+        <select ng-model="story.status" ng-change="vm.onChange_updateStory(story)">
+            <option ng-repeat="option in vm.storyStates" value="{{option}}">{{option}}</option>
+        </select>
+        <!-- everything updates live <button class="save" type="button" class="btn btn-default" ng-click="vm.onChange_updateStory(story);">Save</button> -->
+    </div>
 </div>
-<div class="create_userstory">
+<div class="notecard">
     <script>
         function clearNewStory() {
             $(".create_userstory_key").val('')
@@ -42,13 +50,14 @@
             $(".create_userstory_status")
         }
     </script>
-    <div class="create_userstory_key">
+    <div class="userstory_key">
         <input type="text" ng-model="vm.newStory.name" placeholder="new user story name"></input>
     </div>
-    <select class="create_userstory_status" ng-model="vm.newStory.status">
+    <div class="notecardContent">
+        <textarea ng-model="vm.newStory.body"></textarea>
+    </div>
+    <select ng-model="vm.newStory.status">
         <option ng-repeat="option in vm.storyStates" value="{{option}}">{{option}}</option>
     </select>
-    <br>
-    <textarea class="create_userstory_body" rows="4" cols="50" ng-model="vm.newStory.body"></textarea>
-    <button type="button" class="btn btn-default" ng-click="vm.onClick_CreateStory();clearNewStory();">Save</button><br>
+    <button class="save" type="button" class="btn btn-default" ng-click="vm.onClick_CreateStory();clearNewStory();">Save</button>
 </div>
