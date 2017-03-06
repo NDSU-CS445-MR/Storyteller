@@ -16,5 +16,5 @@ function config($routeProvider){
         template: '<board></board>'
     })
 	//Default back to login
-    .otherwise('/login');
+    .otherwise('/board');
 }
