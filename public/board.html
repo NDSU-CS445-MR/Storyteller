@@ -1,5 +1,3 @@
-
-
 <div ng-repeat="story in vm.stories">
     <!--
     <div class="userstory" ng-if="story.status != 'discarded'">
@@ -29,11 +27,11 @@
     <div class="notecard" ng-if="story.status != 'discarded'">
         <div class="userstory_key">
         <input class="userstory_name" type="text" ng-change="vm.onChange_updateStory(story);" ng-model="story.name">
-        <span style="position:absolute;right:0;top:0;margin:4px" class="badge">5</span>
+        <span style="position:absolute;right:0;top:0;margin:4px" class="badge">1 point</span>
         <!--<p class="pointsText display notecardElement">-</p>-->
         </div>
         <!--drop down provided by W3 schools-->
-        <div class="notecardContent">
+        <div class="story_body">
             <textarea ng-change="vm.onChange_updateStory(story);" ng-model="story.body"></textarea>
         </div>
         <select ng-model="story.status" ng-change="vm.onChange_updateStory(story)">
@@ -50,14 +48,14 @@
             $(".create_userstory_status")
         }
     </script>
-    <div class="userstory_key">
+    <div class="userstory_key create_userstory_key">
         <input type="text" ng-model="vm.newStory.name" placeholder="new user story name"></input>
     </div>
-    <div class="notecardContent">
+    <div class="story_body">
         <textarea ng-model="vm.newStory.body"></textarea>
     </div>
     <select ng-model="vm.newStory.status">
         <option ng-repeat="option in vm.storyStates" value="{{option}}">{{option}}</option>
     </select>
-    <button class="save" type="button" class="btn btn-default" ng-click="vm.onClick_CreateStory();clearNewStory();">Save</button>
+    <button class="save btn btn-default" type="button" ng-click="vm.onClick_CreateStory();clearNewStory();">Save new story</button>
 </div>
