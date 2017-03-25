@@ -72,13 +72,22 @@ nav.navbar button:hover .dropbtn {
 /* end navbar formatting */
 
 /* user story formatting */
+#sortable > div { float: left; }
+
 div.notecard {
-    background-color: #eee8aa;
+    background-color: rgba(238,232,170,2.0);
     height: 200px; width: 350px;
     margin: 4px;
     position: relative;
     float: left;
 }
+div.drop-zone {
+    height:30vh;
+    width:100%;
+    background-color: rgb(0,0,0);
+    opacity: 0.6;
+}
+
 div.userstory_key {
     font-weight: bold;
     font-size: 20px;
