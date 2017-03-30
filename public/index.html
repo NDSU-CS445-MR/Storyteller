@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html ng-app='app'>
 <head>
+    
+    <!--  Scripts-->
+    <!--EXTERNAL DEPENDANCIES-->
+    <!--TODO: Host minified JS dependancies locally to prevent deprication-->
+    
+    <!-- jQuery and jQuery UI -->
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    
+    <!-- angularjs and angularfire -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.js"></script>
+    <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.js"></script>
+    <!--TODO: Manage routes and angular dependancies through 1 JS file-->
+    
     <!--BEGIN FIREBASE INITIALIZATION-->
     <script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
     <script>
@@ -12,41 +27,32 @@
         messagingSenderId: "963004166071"
         };
         firebase.initializeApp(config);
+        
     </script>
     <!--END FIREBASE INITIALIZATION-->
     
-    <!--  Scripts-->
-    <!--EXTERNAL DEPENDANCIES-->
-    <!--TODO: Host minified JS dependancies locally to prevent deprication-->
-    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.js"></script>
-    <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.js"></script>
-    <!--BEGIN ANGULAR JS REFERENCES-->
-    <!--TODO: Manage routes and angular dependancies through 1 JS file-->
+    <!-- custom js and angularjs -->
     <script type="text/javascript" src="/public/app.js"></script>
     <script src="/public/login.js"></script>
     <script src="/public/home.js"></script>
     <script src="/public/fbRef.js"></script>
     <script src="/public/board.js"></script>
-    <!--END ANGULAR JS REFERENCES-->
-    <!--Style-->
-    <!--Todo host style dependencies locally-->
-    <!-- Latest compiled and minified CSS -->
+    
+    <!-- Style -->
+    <!-- Todo host style dependencies locally -->
+    <!-- bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-    <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    
     <!-- Custom style -->
     <link rel="stylesheet" href="/public/custom.css">
-    <!--End style-->
 </head>
 <body>
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" href="#">Storyteller | Demo Board <!--{{vm.boardname}}--></a>
+          <a class="navbar-brand" href="#">Storyteller | <span id="board_name"></span></a>
         </div>
         <ul class="nav navbar-nav">
             <li class="active"><a href="/">Home</a></li>
@@ -66,8 +72,6 @@
         </ul>
       </div>
     </nav>
-    <div class="container-fluid">
-        <ng-view></ng-view>
-    </div>
+    <ng-view></ng-view>
 </body>
 </html>

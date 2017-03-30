@@ -67,18 +67,90 @@ nav.navbar .dropdown:hover .dropbtn {
 }
 
 nav.navbar button:hover .dropbtn {
-	   background-color: #3e8e41;
+   background-color: #3e8e41;
 }
 /* end navbar formatting */
 
-/* user story formatting */
-div.notecard {
-    background-color: #eee8aa;
-    height: 200px; width: 350px;
-    margin: 4px;
-    position: relative;
-    float: left;
+/* board formatting */
+
+
+/* grid and drop zone */
+div.grid-host {
+    display: grid;
 }
+div.drop-zone div.drop-grid {
+    display: grid;
+}
+div.drop-zone-header {
+    height: 32px;
+}
+div.drop-zone-header h1 {
+    font-size: 28px;
+    margin: 0; margin-left: 8px;
+    color: var(--theme-color);
+}
+/* mvp line */
+div.drop-zone.mvp {
+    border-bottom: 4px solid #A33;
+}
+/* themes */
+div.drop-zone.mvp {
+    --theme-color: #DAA;
+}
+div.drop-zone.accepted {
+    --theme-color: #DDA;
+}
+div.drop-zone.stretch {
+    --theme-color: #AAD;
+}
+div.drop-zone.under-consideration {
+    --theme-color: #DAD;
+}
+/* media queries below (todo) */
+div.grid-host {
+    --total-columns: 5;
+}
+div.drop-zone.mvp {
+    --theme-color: #DAA;
+    --num-columns: var(--total-columns);
+    grid-column: 1 / 6;
+}
+div.drop-zone.accepted {
+    --theme-color: #DDA;
+    --num-columns: 3;
+    grid-column: 1 / 4;
+}
+div.drop-zone.stretch {
+    --theme-color: #AAD;
+    --num-columns: 1;
+    grid-column: 4 / 5;
+}
+div.drop-zone.under-consideration {
+    --theme-color: #DAD;
+    --num-columns: 1;
+    grid-column: 5 / 6;
+}
+/* spawn parent grid */
+div.grid-host {
+    grid-template-columns: repeat(var(--total-columns), calc(100vw / var(--total-columns))); 
+}
+/* spawn child grids */
+div.drop-zone div.drop-grid {
+    grid-template-columns: repeat(var(--num-columns), calc(100vw / var(--total-columns)));
+}
+/* end grid and drop zone */
+
+/* user story formatting */
+/*#sortable > div { float: left; }*/
+
+div.notecard {
+    --notecard-margin: 4px;
+    background-color: var(--theme-color);
+    width: calc(100% - (var(--notecard-margin) * 2));
+    height: 20vh;
+    margin: var(--notecard-margin);
+}
+
 div.userstory_key {
     font-weight: bold;
     font-size: 20px;
