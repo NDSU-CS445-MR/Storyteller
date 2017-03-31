@@ -4,12 +4,17 @@ angular.module('app').component('board',{
     controller: boardController
 });
 
-function boardController ($timeout, firebaseFactory, $firebaseArray, $firebaseObject, $log) {
+function boardController ($timeout, firebaseConnection, $firebaseArray, $firebaseObject, $log) {
+    firebaseConnection.log('test log')
     // vm is View Model (MVVM)
     var vm = this;
-    vm.board = firebaseFactory.getBoard(firebaseFactory.sessionStore.currentBoardKey);
     
-    vm.storyStates = ['mvp', 'accepted', 'stretch', 'under consideration', 'discarded'];
+    vm.boardKey = firebaseConnection.sessionStore.currentBoardKey;
+    vm.board = firebaseConnection.getBoardByKey(vm.boardKey);
+    
+    vm.storyStates = ['mvp', 'accepted', 'stretch', 'under-consideration', 'discarded'];
+    vm.storyStatesDisplay = ['mvp', 'accepted', 'stretch', 'under-consideration'];
+    
     vm.newStoryTemplate = {
         body: '',
         name: '',
@@ -19,21 +24,20 @@ function boardController ($timeout, firebaseFactory, $firebaseArray, $firebaseOb
             this.name = '';
             this.status = vm.storyStates[3];
         },
-        getNewStory: function getNewStory() {
-            return {
+        commit: function commitNewStory() {
+            vm.board.child('stories').push({
                 body: this.body,
                 name: this.name,
                 status: this.status
-            }
+            });
         }
     };
     
     vm.stories = vm.board.child('stories');
-    vm.stories.on('value', applyDraggableToAllStories);
+    vm.stories.on('value', storiesReady);
     vm.stories = $firebaseArray(vm.stories);
     //Function that is executed when a new draggable element is placed in a droppable element
     var updateStoryState = function(event, ui){
-        console.log("dropping");
         //get the parent zone element name i.e. "under consideration"
         var zone = $(this).attr('name')
         //get the user story id from the story element that was placed in the drop-zone
@@ -52,9 +56,11 @@ function boardController ($timeout, firebaseFactory, $firebaseArray, $firebaseOb
         ui.draggable.css("left", 0);
         ui.draggable.css("top", 0);
     }
+
     
+    // 
     vm.onClick_CreateStory = function createStory(){
-        vm.board.child('stories').push(vm.newStoryTemplate.getNewStory());
+        vm.newStoryTemplate.commit();
         vm.newStoryTemplate.reset();
     };
     
@@ -75,12 +81,12 @@ function boardController ($timeout, firebaseFactory, $firebaseArray, $firebaseOb
         $("#board_name").text(vm.boardname);
     });
     
-    function applyDraggableToAllStories() {
-        //applies droppable functionality to any UI element with the class "drop-zone"
+    function storiesReady() {
+        // applies droppable functionality to any UI element with the class "drop-zone"
         $( ".drop-zone" ).droppable({
             drop: updateStoryState
         });
-        //applies draggable functionality to any UI element with the class "drag"
+        // applies draggable functionality to any UI element with the class "drag"
         $timeout(()=>{$(".drag" ).draggable()});
     }    
 }

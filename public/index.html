@@ -7,7 +7,7 @@
     <!--TODO: Host minified JS dependancies locally to prevent deprication-->
     
     <!-- jQuery and jQuery UI -->
-    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     
     <!-- angularjs and angularfire -->
@@ -17,26 +17,17 @@
     <!--TODO: Manage routes and angular dependancies through 1 JS file-->
     
     <!--BEGIN FIREBASE INITIALIZATION-->
-    <script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
-    <script>
-        var config = {
-        apiKey: "AIzaSyBqqWTPOk3Jk-57yyY5yaB6eO2AU16mb3I",
-        authDomain: "storyteller-e1db0.firebaseapp.com",
-        databaseURL: "https://storyteller-e1db0.firebaseio.com",
-        storageBucket: "storyteller-e1db0.appspot.com",
-        messagingSenderId: "963004166071"
-        };
-        firebase.initializeApp(config);
-        
-    </script>
+    <script type="text/javascript" src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+    <script type="text/javascript" src="/public/fb-config.js"></script>
+    <script type="text/javascript" src="/public/fb-init.js"></script>
     <!--END FIREBASE INITIALIZATION-->
     
     <!-- custom js and angularjs -->
     <script type="text/javascript" src="/public/app.js"></script>
-    <script src="/public/login.js"></script>
-    <script src="/public/home.js"></script>
-    <script src="/public/fbRef.js"></script>
-    <script src="/public/board.js"></script>
+    <script type="text/javascript" src="/public/loginController.js"></script>
+    <script type="text/javascript" src="/public/homeController.js"></script>
+    <script type="text/javascript" src="/public/fb-reference.js"></script>
+    <script type="text/javascript" src="/public/boardController.js"></script>
     
     <!-- Style -->
     <!-- Todo host style dependencies locally -->
