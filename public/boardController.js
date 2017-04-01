@@ -20,10 +20,40 @@ function boardController ($timeout, firebaseConnection, $firebaseArray, $firebas
         name: '',
         status: vm.storyStates[3],
         reset: function reset() {
-            this.body = '';
+            this.body = 'As a * I want * so that ';
             this.name = '';
             this.status = vm.storyStates[3];
         },
+		jargonCheck: function jargonChecker(){
+			var jarggg = this.body.split(" ");
+			var jargonTerms = ['jargon','java','batch'];
+			var counter = 0;
+			var counter2 = 0;
+			while(jarggg[counter] != null){
+				while(jargonTerms[counter2] != null){
+					if(jarggg[counter] == jargonTerms[counter2]){
+						window.alert("Jargon detected!!");
+				}
+				counter2++;
+			}
+			counter++;
+			counter2=0;
+		}
+	//window.alert(jargonTerms);
+		},
+		formatCheck: function formatChecker(){
+			var cursorPosition = 0;
+			var testStory = this.body;
+			var myRe = /As a .*(\n)*.* I want .*(\n)*.* so that /g;
+			if(testStory === ''){acceptedStory = 'As a * I want * so that ';}
+			var formatted = myRe.test(testStory);
+			if(formatted){acceptedStory = testStory;}
+			else{
+				cursorPosition = setCursor(this.body);
+				this.body = acceptedStory;
+				story.selectRange(cursorPosition);
+			}
+		},
         commit: function commitNewStory() {
             vm.board.child('stories').push({
                 body: this.body,
@@ -64,6 +94,83 @@ function boardController ($timeout, firebaseConnection, $firebaseArray, $firebas
         vm.newStoryTemplate.reset();
     };
     
+	function jargonChecker(story){
+	var jarggg = story.value.split(" ");
+	window.alert(jarggg);
+	var jargonTerms = ['jargon','java','batch'];
+	var counter = 0;
+	var counter2 = 0;
+	while(jarggg[counter] != null){
+		while(jargonTerms[counter2] != null){
+			if(jarggg[counter] == jargonTerms[counter2]){
+				window.alert("Jargon detected!!");
+			}
+			counter2++;
+		}
+	counter++;
+	counter2=0;
+	}
+	//window.alert(jargonTerms);
+	}
+	vm.onClick_Cancel = function Cancel()
+	{
+		vm.newStoryTemplate.jargonCheck();
+		vm.newStoryTemplate.reset();
+		disappear();
+	}
+	vm.onClick_NewStory = function NewStoryCreation(){
+		vm.newStoryTemplate.reset();
+		appear();
+	}
+	
+	function appear(){
+		$(".newNoteCard").attr("style", "display:inline-block");
+	}
+	
+	function disappear(){
+		$(".newNoteCard").attr("style", "display:none");
+	}
+	
+	vm.onkeyup_formatCheck = function FormatChecker(){
+		vm.newStoryTemplate.formatCheck();
+	}
+		function setCursor(stText){
+	var ctl = stText;
+	if(ctl.selectionStart != null){var cursorPosition = ctl.selectionStart;}
+	return cursorPosition;
+	}
+	$.fn.selectRange = function(start, end) {
+    if(end === undefined) {
+        end = start;
+    }
+    return this.each(function() {
+        if('selectionStart' in this) {
+            this.selectionStart = start;
+            this.selectionEnd = end;
+        } else if(this.setSelectionRange) {
+            this.setSelectionRange(start, end);
+        } else if(this.createTextRange) {
+            var range = this.createTextRange();
+            range.collapse(true);
+            range.moveEnd('character', end);
+            range.moveStart('character', start);
+            range.select();
+        }
+    });
+};
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
     vm.onChange_updateStory = function updateStory(story){
         vm.board.child('stories')
             .child(story.$id)
