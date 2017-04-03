@@ -1,3 +1,18 @@
+		<div id="modal-background" class="modal"></div>
+		<div id="css-trickery" class="modal">
+        <div id="new_story" class="notecard drag newNoteCard modal">
+            <div class="userstory_key create_userstory_key">
+                <input type="text" ng-model="vm.newStoryTemplate.name" placeholder="new user story name"></input>
+            </div>
+            <div class="story_body">
+                <textarea ng-model="vm.newStoryTemplate.body" id="StBody" ng-keyup="vm.newStoryTemplate.formatCheck();" value="'As a * I want * so that '"></textarea>
+            </div>
+			<div class="ess_buttons">
+			<button class="save btn btn-default" type="button" ng-click="vm.onClick_CreateStory();clearNewStory();" onClick="disappear();">Save new story</button>
+			<button class="cancel btn btn-default" type= "button" ng-click="vm.onClick_Cancel();">Cancel</button>
+		</div>
+        </div>
+		</div>
 <button class="btn btn-default" type="button" ng-click="vm.onClick_NewStory();">New Story</button>
 <div class="grid-host">
 <div data-ng-repeat="acceptance in vm.storyStatesDisplay" name="{{acceptance}}" class="{{acceptance}} drop-zone">
@@ -12,19 +27,6 @@
                     <textarea ng-change="vm.onChange_updateStory(story);" ng-model="story.body"></textarea>
                 </div>
             </div>
-        </div>
-
-        <div ng-if="acceptance == 'under-consideration'" id="new_story" class="notecard drag newNoteCard">
-            <div class="userstory_key create_userstory_key">
-                <input type="text" ng-model="vm.newStoryTemplate.name" placeholder="new user story name"></input>
-            </div>
-            <div class="story_body">
-                <textarea ng-model="vm.newStoryTemplate.body" id="StBody" ng-keyup="vm.newStoryTemplate.formatCheck();" value="'As a * I want * so that '"></textarea>
-            </div>
-			<div class="ess_buttons">
-			<button class="save btn btn-default" type="button" ng-click="vm.onClick_CreateStory();clearNewStory();" onClick="disappear();">Save new story</button>
-			<button class="cancel btn btn-default" type= "button" ng-click="vm.onClick_Cancel();">Cancel</button>
-		</div>
         </div>
     </div>
 </div>

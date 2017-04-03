@@ -199,14 +199,32 @@ button.save {
 	display: inline-block;
 }
 div.newNoteCard {
+background-color: #DDA;
 z-index: 1;
 height:400px; width: 700px; 
 display: none;
-margin-left: auto;
-margin-right: auto;
-margin-top: auto;
-margin-bottom: auto;
-position: relative;
+margin: 0 auto;
+margin-top: 80px;
+position: absolute;
 border: bold;
 border-color: black;
+}
+div#modal-background{
+	opacity: .7;
+	height: 100%;
+	width: 100%;
+	position: fixed;
+	background-color: black;
+}
+
+#css_trickery{
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	align: center;
+}
+
+.modal{
+	display: none;
+	z-index:1;
 }

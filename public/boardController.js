@@ -124,11 +124,13 @@ function boardController ($timeout, firebaseConnection, $firebaseArray, $firebas
 	}
 	
 	function appear(){
-		$(".newNoteCard").attr("style", "display:inline-block");
+		//$("#modal-background").attr("style", "display:inline-block");
+		$(".modal").attr("style", "display:inline-block");
 	}
 	
 	function disappear(){
-		$(".newNoteCard").attr("style", "display:none");
+		$(".modal").attr("style", "display:none");
+		//$("#modal-background").attr("style", "display:none");
 	}
 	
 	vm.onkeyup_formatCheck = function FormatChecker(){
