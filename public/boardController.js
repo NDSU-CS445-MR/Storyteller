@@ -4,70 +4,143 @@ angular.module('app').component('board',{
     controller: boardController
 });
 
-function boardController ($timeout, firebaseConnection, $firebaseArray, $firebaseObject, $log) {
-    firebaseConnection.log('test log')
+function boardController ($timeout, $compile, $scope, firebaseConnection, $firebaseArray, $firebaseObject, $log, storyValidationClient) {
     // vm is View Model (MVVM)
     var vm = this;
     
     vm.boardKey = firebaseConnection.sessionStore.currentBoardKey;
     vm.board = firebaseConnection.getBoardByKey(vm.boardKey);
     
+    /* fill in the name of board in the navbar */
+    vm.temp = $firebaseObject(vm.board.child('name'));
+    vm.temp.$loaded().then(function setBoardName(){
+        vm.boardname = vm.temp.$value;
+        $("#board_name").text(vm.boardname);
+    });
+    
+    /* inject new story button to navbar */
+    var injected_nav_item = $("<li><a>New Story</a></li>");
+    injected_nav_item.attr('ng-click', 'vm.activateNewStoryCard();');
+    $(".navbar-nav").append(injected_nav_item);
+    $compile($(".navbar-nav"))($scope);
+    
     vm.storyStates = ['mvp', 'accepted', 'stretch', 'under-consideration', 'discarded'];
     vm.storyStatesDisplay = ['mvp', 'accepted', 'stretch', 'under-consideration'];
     
-    vm.newStoryTemplate = {
-        body: '',
+    vm.stories = vm.board.child('stories');
+    vm.stories.on('value', storiesReady);
+    vm.stories = $firebaseArray(vm.stories);
+
+    vm.defaultStory = {
+        body: 'As a I want so that ',
         name: '',
-        status: vm.storyStates[3],
+        status: vm.storyStates[3]
+    }
+    
+    vm.newStoryTemplate = {
+        body: vm.defaultStory.body,
+        name: vm.defaultStory.name,
+        status: vm.defaultStory.status,
         reset: function reset() {
-            this.body = 'As a * I want * so that ';
-            this.name = '';
-            this.status = vm.storyStates[3];
+            this.body = vm.defaultStory.body;
+            this.name = vm.defaultStory.name;
+            this.status = vm.defaultStory.status;
         },
-		jargonCheck: function jargonChecker(){
-			var jarggg = this.body.split(" ");
-			var jargonTerms = ['jargon','java','batch'];
-			var counter = 0;
-			var counter2 = 0;
-			while(jarggg[counter] != null){
-				while(jargonTerms[counter2] != null){
-					if(jarggg[counter] == jargonTerms[counter2]){
-						window.alert("Jargon detected!!");
-				}
-				counter2++;
-			}
-			counter++;
-			counter2=0;
-		}
-	//window.alert(jargonTerms);
-		},
-		formatCheck: function formatChecker(){
-			var cursorPosition = 0;
-			var testStory = this.body;
-			var myRe = /As a .*(\n)*.* I want .*(\n)*.* so that /g;
-			if(testStory === ''){acceptedStory = 'As a * I want * so that ';}
-			var formatted = myRe.test(testStory);
-			if(formatted){acceptedStory = testStory;}
-			else{
-				cursorPosition = setCursor(this.body);
-				this.body = acceptedStory;
-				story.selectRange(cursorPosition);
-			}
-		},
         commit: function commitNewStory() {
             vm.board.child('stories').push({
                 body: this.body,
                 name: this.name,
                 status: this.status
             });
+        },
+        bodySnapshot: vm.defaultStory.body,
+        changed: function changed() {
+            var analysis = storyValidationClient.validStoryFormat(this.body);
+            if (!analysis.pass) {
+                var newStoryTextArea = $('#newStoryBody');
+                var selectStart = newStoryTextArea.prop('selectionStart');
+                if (this.body.length > this.bodySnapshot.length) { // user inserted character to break formatting
+                    selectStart -= 1;
+                } else { // user removed character to break formatting
+                    selectStart += 1;
+                }
+                this.body = this.bodySnapshot;
+                // setTimeout is necessary because the above statement is not finished once it returns
+                setTimeout(function() { newStoryTextArea[0].setSelectionRange(selectStart, selectStart); }, 50);
+            } else {
+                this.bodySnapshot = this.body;
+            }
         }
     };
     
-    vm.stories = vm.board.child('stories');
-    vm.stories.on('value', storiesReady);
-    vm.stories = $firebaseArray(vm.stories);
-    //Function that is executed when a new draggable element is placed in a droppable element
-    var updateStoryState = function(event, ui){
+    vm.activateNewStoryCard = function activateNewStoryCard(){
+        vm.newStoryTemplate.reset();
+        $(".notecard-new").show();
+    }
+    vm.cancelNewStoryCard = function cancelNewStoryCard() {
+        vm.newStoryTemplate.reset();
+        $(".notecard-new").hide();
+    }
+    vm.commitNewStory = function commitNewStory() {
+        vm.newStoryTemplate.commit();
+        vm.newStoryTemplate.reset();
+    };
+    
+    vm.storyTitleChanged = function storyTitleChanged(story) {
+        vm.board.child('stories')
+            .child(story.$id)
+            .update({
+                name: story.name || ''
+            });
+    }
+    
+    vm.storyBodyChanged = function storyBodyChanged(story) {
+        
+        var analysis = storyValidationClient.validStoryFormat(story.body);
+        
+        if (analysis.pass) {
+            vm.board.child('stories')
+                .child(story.$id)
+                .update({
+                    body: story.body || '',
+                });
+        } else {
+            var vm_story = vm.board.child('stories')
+                .child(story.$id);
+                
+            var vm_story = $firebaseObject(vm.board.child('stories').child(story.$id).child('body'));
+            
+            vm_story.$loaded().then(function snapshotLoaded() {
+                var snapshot = vm_story.$value;
+                var textArea = $("#" + story.$id).find("textarea.story_body_textarea");
+                var selectStart = textArea.prop('selectionStart');
+                if (story.body.length > snapshot.length) { // user inserted character to break formatting
+                    selectStart -= 1;
+                } else { // user removed character to break formatting
+                    selectStart += 1;
+                }
+                story.body = snapshot;
+                // setTimeout is necessary because the above statement is not finished once it returns
+                setTimeout(function() { textArea[0].setSelectionRange(selectStart, selectStart); }, 50);
+            });
+        }
+    }
+       
+    
+    
+    
+    /* dragging functionality */
+    function storiesReady() {
+        // applies droppable functionality to any UI element with the class "drop-zone"
+        $( ".drop-zone" ).droppable({
+            drop: draggableDropOnZone
+        });
+        // applies draggable functionality to any UI element with the class "drag"
+        $timeout(()=>{$(".drag" ).draggable()});
+    }    
+    
+    // when a story is dropped on a drop zone, change its acceptance state and fix positioning
+    var draggableDropOnZone = function(event, ui){
         //get the parent zone element name i.e. "under consideration"
         var zone = $(this).attr('name')
         //get the user story id from the story element that was placed in the drop-zone
@@ -86,115 +159,8 @@ function boardController ($timeout, firebaseConnection, $firebaseArray, $firebas
         ui.draggable.css("left", 0);
         ui.draggable.css("top", 0);
     }
-
     
-    // 
-    vm.onClick_CreateStory = function createStory(){
-        vm.newStoryTemplate.commit();
-        vm.newStoryTemplate.reset();
-    };
+    /* scary place where story rows and sorting happens */
     
-	function jargonChecker(story){
-	var jarggg = story.value.split(" ");
-	window.alert(jarggg);
-	var jargonTerms = ['jargon','java','batch'];
-	var counter = 0;
-	var counter2 = 0;
-	while(jarggg[counter] != null){
-		while(jargonTerms[counter2] != null){
-			if(jarggg[counter] == jargonTerms[counter2]){
-				window.alert("Jargon detected!!");
-			}
-			counter2++;
-		}
-	counter++;
-	counter2=0;
-	}
-	//window.alert(jargonTerms);
-	}
-	vm.onClick_Cancel = function Cancel()
-	{
-		vm.newStoryTemplate.jargonCheck();
-		vm.newStoryTemplate.reset();
-		disappear();
-	}
-	vm.onClick_NewStory = function NewStoryCreation(){
-		vm.newStoryTemplate.reset();
-		appear();
-	}
-	
-	function appear(){
-		$(".newNoteCard").attr("style", "display:inline-block");
-	}
-	
-	function disappear(){
-		$(".newNoteCard").attr("style", "display:none");
-	}
-	
-	vm.onkeyup_formatCheck = function FormatChecker(){
-		vm.newStoryTemplate.formatCheck();
-	}
-		function setCursor(stText){
-	var ctl = stText;
-	if(ctl.selectionStart != null){var cursorPosition = ctl.selectionStart;}
-	return cursorPosition;
-	}
-	$.fn.selectRange = function(start, end) {
-    if(end === undefined) {
-        end = start;
-    }
-    return this.each(function() {
-        if('selectionStart' in this) {
-            this.selectionStart = start;
-            this.selectionEnd = end;
-        } else if(this.setSelectionRange) {
-            this.setSelectionRange(start, end);
-        } else if(this.createTextRange) {
-            var range = this.createTextRange();
-            range.collapse(true);
-            range.moveEnd('character', end);
-            range.moveStart('character', start);
-            range.select();
-        }
-    });
-};
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-    vm.onChange_updateStory = function updateStory(story){
-        vm.board.child('stories')
-            .child(story.$id)
-            .update({
-                body: story.body || '',
-                name: story.name || '',
-                status: story.status
-            });
-    };
-    // todo how do I get the name of the board
-    //You have to asynchronously retrieve it from the Firebase object reference
-    vm.temp = $firebaseObject(vm.board.child('name'));
-    vm.temp.$loaded().then(function setBoardName(){
-        vm.boardname = vm.temp.$value;
-        $("#board_name").text(vm.boardname);
-    });
-    
-    function storiesReady() {
-        // applies droppable functionality to any UI element with the class "drop-zone"
-        $( ".drop-zone" ).droppable({
-            drop: updateStoryState
-        });
-        // applies draggable functionality to any UI element with the class "drag"
-        $timeout(()=>{$(".drag" ).draggable()});
-    }    
 }
 

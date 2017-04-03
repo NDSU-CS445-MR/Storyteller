@@ -149,14 +149,17 @@ div.notecard {
     width: calc(100% - (var(--notecard-margin) * 2));
     height: 20vh;
     margin: var(--notecard-margin);
+    
+    display: grid;
+    grid-template-rows: 20% 60% 20%;
 }
 
 div.userstory_key {
     font-weight: bold;
     font-size: 20px;
-    margin-bottom: 4px;
-    height: 10%;
-    padding: 6px;
+    padding: 4px;
+    
+    grid-row: 1;
 }
 div.userstory_key input {
     background: none;
@@ -167,9 +170,8 @@ div.userstory_key input {
 div.story_body {
     font-size: large;
     padding: 4px;
-    width: 100%;
-    height: 80%;
-	margin-top:0px;
+    
+    grid-row: 2;
 }
 div.story_body textarea {
     background: none;
@@ -182,31 +184,35 @@ div.notecard select {
     position: absolute;
     margin: 4px;
 }
-
+div.notecard div.story_badges {
+    padding: 4px;
+    grid-row: 3;
+}
+div.badge.flag {
+    
+}
+div.badge.flag-duplicate {
+    background-color: #aa4;
+}
+div.badge.flag-jargon {
+    background-color: #4aa;
+}
+button.debug-order {
+    display: none;
+}
 /* end user story formatting */
 /* new notecard formatting */
-button.save {
+div.notecard-new button.save, div.notecard-new button.cancel {
     margin: 0px;
 }
-.newNoteCard button.cancel{
-	margin: 0px;
-	}
-.ess_buttons{
-	bottom: 0; right: 0;
-	margin: 0px;
-	padding: 0px;
-	position: absolute;
-	display: inline-block;
+div.notecard-new div.ess_buttons{
+    bottom: 0; right: 0;
+    margin: 0px;
+    padding: 0px;
+    position: absolute;
+    display: inline-block;
 }
-div.newNoteCard {
-z-index: 1;
-height:400px; width: 700px; 
-display: none;
-margin-left: auto;
-margin-right: auto;
-margin-top: auto;
-margin-bottom: auto;
-position: relative;
-border: bold;
-border-color: black;
+div.notecard-new {
+    display: none;
+    border: 2px solid black;
 }
