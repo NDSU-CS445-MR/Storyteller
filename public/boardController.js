@@ -75,11 +75,11 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
     
     vm.activateNewStoryCard = function activateNewStoryCard(){
         vm.newStoryTemplate.reset();
-        $(".notecard-new").show();
+        $(".modal").show();
     }
     vm.cancelNewStoryCard = function cancelNewStoryCard() {
         vm.newStoryTemplate.reset();
-        $(".notecard-new").hide();
+        $(".modal").hide();
     }
     vm.commitNewStory = function commitNewStory() {
         vm.newStoryTemplate.commit();
@@ -161,6 +161,5 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
     }
     
     /* scary place where story rows and sorting happens */
-    
 }
 
