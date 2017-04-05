@@ -62,6 +62,7 @@ function boardController ($timeout, firebaseConnection, $firebaseArray, $firebas
     vm.onClick_CreateStory = function createStory(){
         vm.newStoryTemplate.commit();
         vm.newStoryTemplate.reset();
+        resetBoardEditFlag()
     };
     
     vm.onChange_updateStory = function updateStory(story){
@@ -72,6 +73,7 @@ function boardController ($timeout, firebaseConnection, $firebaseArray, $firebas
                 name: story.name || '',
                 status: story.status
             });
+            resetBoardEditFlag();
     };
     // todo how do I get the name of the board
     //You have to asynchronously retrieve it from the Firebase object reference
@@ -81,6 +83,11 @@ function boardController ($timeout, firebaseConnection, $firebaseArray, $firebas
         $("#board_name").text(vm.boardname);
     });
     
+    function resetBoardEditFlag(){
+        vm.board.child('edited').child('jargon').set(true);
+        vm.board.child('edited').child('duplicate').set(true);
+    }
+
     function storiesReady() {
         // applies droppable functionality to any UI element with the class "drop-zone"
         $( ".drop-zone" ).droppable({
