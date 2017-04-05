@@ -4,25 +4,47 @@ angular.module('app').component('board',{
     controller: boardController
 });
 
-function boardController ($timeout, firebaseConnection, $firebaseArray, $firebaseObject, $log) {
-    firebaseConnection.log('test log')
+function boardController ($timeout, $compile, $scope, firebaseConnection, $firebaseArray, $firebaseObject, $log, storyValidationClient) {
     // vm is View Model (MVVM)
     var vm = this;
     
     vm.boardKey = firebaseConnection.sessionStore.currentBoardKey;
     vm.board = firebaseConnection.getBoardByKey(vm.boardKey);
     
+    /* fill in the name of board in the navbar */
+    vm.temp = $firebaseObject(vm.board.child('name'));
+    vm.temp.$loaded().then(function setBoardName(){
+        vm.boardname = vm.temp.$value;
+        $("#board_name").text(vm.boardname);
+    });
+    
+    /* inject new story button to navbar */
+    var injected_nav_item = $("<li><a>New Story</a></li>");
+    injected_nav_item.attr('ng-click', 'vm.activateNewStoryCard();');
+    $(".navbar-nav").append(injected_nav_item);
+    $compile($(".navbar-nav"))($scope);
+    
     vm.storyStates = ['mvp', 'accepted', 'stretch', 'under-consideration', 'discarded'];
     vm.storyStatesDisplay = ['mvp', 'accepted', 'stretch', 'under-consideration'];
     
-    vm.newStoryTemplate = {
-        body: '',
+    vm.stories = vm.board.child('stories');
+    vm.stories.on('value', storiesReady);
+    vm.stories = $firebaseArray(vm.stories);
+
+    vm.defaultStory = {
+        body: 'As a I want so that ',
         name: '',
-        status: vm.storyStates[3],
+        status: vm.storyStates[3]
+    }
+    
+    vm.newStoryTemplate = {
+        body: vm.defaultStory.body,
+        name: vm.defaultStory.name,
+        status: vm.defaultStory.status,
         reset: function reset() {
-            this.body = '';
-            this.name = '';
-            this.status = vm.storyStates[3];
+            this.body = vm.defaultStory.body;
+            this.name = vm.defaultStory.name;
+            this.status = vm.defaultStory.status;
         },
         commit: function commitNewStory() {
             vm.board.child('stories').push({
@@ -30,14 +52,95 @@ function boardController ($timeout, firebaseConnection, $firebaseArray, $firebas
                 name: this.name,
                 status: this.status
             });
+        },
+        bodySnapshot: vm.defaultStory.body,
+        changed: function changed() {
+            var analysis = storyValidationClient.validStoryFormat(this.body);
+            if (!analysis.pass) {
+                var newStoryTextArea = $('#newStoryBody');
+                var selectStart = newStoryTextArea.prop('selectionStart');
+                if (this.body.length > this.bodySnapshot.length) { // user inserted character to break formatting
+                    selectStart -= 1;
+                } else { // user removed character to break formatting
+                    selectStart += 1;
+                }
+                this.body = this.bodySnapshot;
+                // setTimeout is necessary because the above statement is not finished once it returns
+                setTimeout(function() { newStoryTextArea[0].setSelectionRange(selectStart, selectStart); }, 50);
+            } else {
+                this.bodySnapshot = this.body;
+            }
         }
     };
     
-    vm.stories = vm.board.child('stories');
-    vm.stories.on('value', storiesReady);
-    vm.stories = $firebaseArray(vm.stories);
-    //Function that is executed when a new draggable element is placed in a droppable element
-    var updateStoryState = function(event, ui){
+    vm.activateNewStoryCard = function activateNewStoryCard(){
+        vm.newStoryTemplate.reset();
+        $(".modal").show();
+    }
+    vm.cancelNewStoryCard = function cancelNewStoryCard() {
+        vm.newStoryTemplate.reset();
+        $(".modal").hide();
+    }
+    vm.commitNewStory = function commitNewStory() {
+        vm.newStoryTemplate.commit();
+        vm.newStoryTemplate.reset();
+    };
+    
+    vm.storyTitleChanged = function storyTitleChanged(story) {
+        vm.board.child('stories')
+            .child(story.$id)
+            .update({
+                name: story.name || ''
+            });
+    }
+    
+    vm.storyBodyChanged = function storyBodyChanged(story) {
+        
+        var analysis = storyValidationClient.validStoryFormat(story.body);
+        
+        if (analysis.pass) {
+            vm.board.child('stories')
+                .child(story.$id)
+                .update({
+                    body: story.body || '',
+                });
+        } else {
+            var vm_story = vm.board.child('stories')
+                .child(story.$id);
+                
+            var vm_story = $firebaseObject(vm.board.child('stories').child(story.$id).child('body'));
+            
+            vm_story.$loaded().then(function snapshotLoaded() {
+                var snapshot = vm_story.$value;
+                var textArea = $("#" + story.$id).find("textarea.story_body_textarea");
+                var selectStart = textArea.prop('selectionStart');
+                if (story.body.length > snapshot.length) { // user inserted character to break formatting
+                    selectStart -= 1;
+                } else { // user removed character to break formatting
+                    selectStart += 1;
+                }
+                story.body = snapshot;
+                // setTimeout is necessary because the above statement is not finished once it returns
+                setTimeout(function() { textArea[0].setSelectionRange(selectStart, selectStart); }, 50);
+            });
+        }
+    }
+       
+    
+    
+    
+    /* dragging functionality */
+    function storiesReady() {
+        // applies droppable functionality to any UI element with the class "drop-zone"
+        $( ".drop-zone" ).droppable({
+            drop: draggableDropOnZone
+        });
+        // applies draggable functionality to any UI element with the class "drag"
+        $timeout(()=>{$(".drag" ).draggable()});
+    }    
+    
+    // when a story is dropped on a drop zone, change its acceptance state and fix positioning
+    var draggableDropOnZone = function(event, ui){
         //get the parent zone element name i.e. "under consideration"
         var zone = $(this).attr('name')
         //get the user story id from the story element that was placed in the drop-zone
@@ -56,7 +159,6 @@ function boardController ($timeout, firebaseConnection, $firebaseArray, $firebas
         ui.draggable.css("left", 0);
         ui.draggable.css("top", 0);
     }
-
     
     // 
     vm.onClick_CreateStory = function createStory(){
@@ -96,5 +198,9 @@ function boardController ($timeout, firebaseConnection, $firebaseArray, $firebas
         // applies draggable functionality to any UI element with the class "drag"
         $timeout(()=>{$(".drag" ).draggable()});
     }    
+
+    
+    /* scary place where story rows and sorting happens */
+
 }
 

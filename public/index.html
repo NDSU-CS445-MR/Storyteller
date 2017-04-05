@@ -27,6 +27,7 @@
     <script type="text/javascript" src="/public/loginController.js"></script>
     <script type="text/javascript" src="/public/homeController.js"></script>
     <script type="text/javascript" src="/public/fb-reference.js"></script>
+    <script type="text/javascript" src="/public/story-validation-client.js"></script>
     <script type="text/javascript" src="/public/boardController.js"></script>
     
     <!-- Style -->
@@ -47,19 +48,8 @@
         </div>
         <ul class="nav navbar-nav">
             <li class="active"><a href="/">Home</a></li>
-            <!--<li><a href="">Notifications</a></li>
-            <li><a href="">Options</a></li>
-            <li><a href="">New User Story</a></li>
-            <div class="dropdown">
-                <button class="dropbtn">Sort by:</button>
-                <div class="dropdown-content">
-                    <a href="#">Sprint</a>
-                    <a href="#">User</a>
-                    <a href="#">Tag</a>
-                </div>
-            </div>
-            <li><a href="">Logout</a></li>-->
-            <!--<li><a href="">Help</a></li>-->
+            <li onClick="$(':root').css('font-size', parseInt($(':root').css('font-size')) - 2)"><a>v Aa</a></li>
+            <li onClick="$(':root').css('font-size', parseInt($(':root').css('font-size')) + 2)"><a>^ Aa</a></li>
         </ul>
       </div>
     </nav>

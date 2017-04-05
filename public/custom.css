@@ -1,4 +1,7 @@
 /* page formatting */
+:root {
+    font-size: 12px;
+}
 body {
     background: url("img/blackboard.jpg") repeat-x center center fixed; 
 }
@@ -30,15 +33,14 @@ nav.navbar div.container-fluid ul.nav li a:hover {
 }
 
 nav.navbar .dropbtn {
-	font-size: 14px;
-	background: url("img/woodpic.jpg") repeat-x center center fixed;
+    background: url("img/woodpic.jpg") repeat-x center center fixed;
     color: white;
     padding: 16px;
     border: none;
     cursor: pointer;
 }
 nav.navbar .dropdown {
-	float: left;                                                                      
+    float: left;                                                                      
     position: relative;
     display: inline-block;
 }
@@ -82,10 +84,10 @@ div.drop-zone div.drop-grid {
     display: grid;
 }
 div.drop-zone-header {
-    height: 32px;
+    height: 3rem;
 }
 div.drop-zone-header h1 {
-    font-size: 28px;
+    font-size: 2rem;
     margin: 0; margin-left: 8px;
     color: var(--theme-color);
 }
@@ -149,14 +151,17 @@ div.notecard {
     width: calc(100% - (var(--notecard-margin) * 2));
     height: 20vh;
     margin: var(--notecard-margin);
+    
+    display: grid;
+    grid-template-rows: 2rem calc(100% - 4rem) 2rem;
 }
 
 div.userstory_key {
     font-weight: bold;
-    font-size: 20px;
-    margin-bottom: 4px;
-    height: 20%;
-    padding: 6px;
+    font-size: 1.5rem;
+    padding: 4px;
+    
+    grid-row: 1;
 }
 div.userstory_key input {
     background: none;
@@ -165,12 +170,12 @@ div.userstory_key input {
     border-top-left-radius: 4px; border-top-right-radius: 4px;
 }
 div.story_body {
-    font-size: large;
     padding: 4px;
-    width: 100%;
-    height: 60%;
+    
+    grid-row: 2;
 }
 div.story_body textarea {
+    font-size: 1rem;
     background: none;
     border: none;
     width: 100%;
@@ -181,9 +186,56 @@ div.notecard select {
     position: absolute;
     margin: 4px;
 }
-div.notecard button.save {
-    bottom: 0; right: 0;
-    position: absolute;
-    margin: 4px;
+div.notecard div.notecard-bottom-margin {
+    grid-row: 3;
+    padding-left: 4px; padding-right: 4px;
+    height: 100%;
+}
+div.badge.flag {
+    font-size: 1rem;
+    
+}
+div.badge.flag-duplicate {
+    background-color: #aa4;
+}
+div.badge.flag-jargon {
+    background-color: #4aa;
+}
+button.debug-order {
+    display: none;
 }
 /* end user story formatting */
+/* new notecard formatting */
+#new_story_screen{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    align: center;
+}
+div#new_story_cancel_margin{
+    opacity: .7;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    background-color: black;
+}
+div.notecard-new {
+    background-color: #DDA;
+    height: 80vh; width: 80vw;
+    display: grid;
+    margin: 0 auto;
+    margin-top: 80px;
+    position: absolute;
+    border: bold;
+    border-color: black;
+}
+div.notecard-new div.notecard-bottom-margin{
+    bottom: 0; right: 0;
+    margin: 0px;
+    padding: 0px;
+    position: absolute;
+    display: inline-block;
+}
+div.notecard-new button.save, div.notecard-new button.cancel {
+    margin: 0px;
+}
