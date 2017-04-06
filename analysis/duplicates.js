@@ -21,95 +21,46 @@ process.on('message', function(message) {
 });
 
 var beginAnalysis = function(){
-	firebaseBoardRef.child('edited').on('value',function(snap){
+	firebaseBoardRef.child('edited').child('duplicate').on('value',function(snap){
 		if(!isActive && snap.val()){
+			storiesCache = [];
+			console.log('Starting duplicate analysis');
 			isActive = true;
 			firebaseBoardRef.child('edited').child('duplicate').set(false);
 			firebaseStoriesRef.once('value',function(stories){
+				console.log("Oops I did it again");
 			stories.forEach(function(story){
 			var tempStory = {
 				id: story.key,
 				data: story.val()
 			};
 			storiesCache.push(tempStory);
-			findDuplicates(tempStory);
-			});
-			storiesCache.forEach(function(story){
-				findDuplicates(story)
-			});
+		});
+		storiesCache.forEach(function(story){
+			findDuplicates(story);
+		});
 			isActive = false;
+			console.log(isActive);
 		});
 		}
 	});
-	
 }
 
 var logResults = function(story,updatedLog){
+	console.log(updatedLog);
 	var currentLog =[];
 	//populate currentLog
-	firebaseStoriesRef.child('analysisLog').child('duplicates').once('value',function(snap){
-		snap.forEach(function(log){
-			currentLog.push(log);
+	console.log('updated: ',updatedLog);
+	firebaseStoriesRef.child(story.id).child('analysisLog').child('duplicates').remove().then(function(){
+		updatedLog.forEach(function(log){
+			firebaseStoriesRef.child(story.id).child('analysisLog').child('duplicates').push(log);
 		});
 	});
-	//add new remote flags for discovered duplicates
-	updatedLog.forEach(function(element) {
-		var tempLog = [];
-		var pushTemp = true;
-			firebaseStoriesRef.child(element.story).child('analysisLog').child('duplicates').once('value',function(snap){
-				snap.forEach(function(log){
-					tempLog.push(log)
-				});
-				tempLog.findIndex(function(log,i){
-					if(log.story == story.id && log.isRemoteDuplicate){
-						pushTemp = false;
-					}
-				});
-				if(pushTemp){
-					var remoteStory = {
-						story: story.id,
-						details: element.details,
-						isRemoteDuplicate: true
-					};
-					firebaseStoriesRef.child(element.story).child('analysisLog').child('duplicates').push(remoteStory);
-				}
-			});
-	});
-	//remove obsolete remote flags
-	updatedLog.forEach(function(element) {
-		currentLog.findIndex(function(log,i){
-			if(element.id == log.id && !log.isRemoteDuplicate){
-				currentLog.slice(i,i+1);
-			}
-		});
-	});
-	currentLog.forEach(function(element){
-		var tempLog = [];
-		var pushTemp = true;
-			firebaseStoriesRef.child(element.story).child('analysisLog').child('duplicates').once('value',function(snap){
-				snap.forEach(function(log){
-					var newLog = {
-						id: log.key(),
-						data: log.val()
-					};
-					tempLog.push(newLog);
-				});
-			});
-			tempLog.findIndex(function(log,i){
-				if(log.data.story == story.id && log.data.isRemoteDuplicate){
-					firebaseStoriesRef.child(element.story).child('analysisLog').child('duplicates').child(log.id).remove()
-				}
-			});	
-	});
-	//Update the old duplicates log
-	firebaseStoriesRef.child(story.id).child('analysisLog').child('duplicates').remove();
-	updatedLog.forEach(function(element){
-		firebaseStoriesRef.child(story.id).child('analysisLog').child('duplicates').push(element);
-	});
+	return
 }
 
 var findDuplicates = function(storyCheck) {
-	console.log(storyCheck);
+	//console.log(storyCheck);
   //created or edited story
   //Story body
   //storyCheck = "As a Customer I want The system to utilize a web server So that Users get a web-based experience"; 
@@ -117,7 +68,7 @@ var findDuplicates = function(storyCheck) {
   storyCheckBody= storyCheckBody.toLowerCase(); //converting to lowercase for comparison
   //Trimming required words, punctuation, and articles
   storyCheckBody = storyCheckBody.replace(/as a /g, ''); 
-  storyCheckBody = storyCheckBody.replace(/i want/g, '');
+  storyCheckBody = storyCheckBody.replace(/i want /g, '');
   storyCheckBody = storyCheckBody.replace(/ so that |so that/g, ' ');
   storyCheckBody = storyCheckBody.replace('?', '');
   storyCheckBody = storyCheckBody.replace('.', '');
@@ -161,7 +112,6 @@ var findDuplicates = function(storyCheck) {
 		comparedStoryBody = comparedStoryBody.replace(/ me /g, ' ');
 		comparedStoryBody = comparedStoryBody.replace(/ you /g, ' ');
 		var cStoryArray = comparedStoryBody.split(" "); // create an array
-		console.log('hit1');
 	for (var i = 0, l=storyArray.length; i < l; i++) //loop to iterate through words of storyArray
 		{
 			for (var k = 0, s=cStoryArray.length; k < s; k++)//loop to iterate through words of cStoryArray
@@ -177,35 +127,31 @@ var findDuplicates = function(storyCheck) {
 		if (counter /(storyArray.length) *100 >= 85 ) //Strong duplicate calculation
 		{	
       //Assign flag to data object
-			// console.log('[duplicate] Strong duplicate detected between', storyCheck.id, " and ", comparedStory.id);
+			 console.log('[duplicate] Strong duplicate detected between', storyCheck.id, " and ", comparedStory.id);
+			
 			// console.log('DETAILS: ',comparedStoryBody,storyCheckBody,counter,storyArray.length);
 			var newLog = {
 				story: comparedStory.id,
 				details: 'strong duplicate detected',
-				isRemoteDuplicate: false
 
 			};
 			updatedLog.push(newLog);
 		}
 		else if (counter /(storyArray.length) *100 >= 60) //Potential duplicate calculation
 		{
-      //Assign flag to data object
-			// console.log('[duplicate] Potential duplicate detected between', storyCheck.id, ' and ',comparedStory.id);
-			// console.log('DETAILS: ',comparedStoryBody,storyCheckBody);
+
 			var newLog = {
 				story: comparedStory.id,
 				details: 'possible duplicate detected',
 			};
 			updatedLog.push(newLog);
 		}
-		}
-		// else
-		 console.log('[duplicate] no duplicate detected');
-		// }
+	}
+	
 		}
 		
-	//done = true; //ends while loops
-	
  });
+ console.log('ANANA: ',updatedLog);
  logResults(storyCheck,updatedLog);
+ updatedLog = [];
 }

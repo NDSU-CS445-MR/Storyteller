@@ -5,21 +5,12 @@ var app = express();
 var http = require('http').Server(app);
 var config = require('./config.json');
 var fb_config = require("./public/fb-config.js").fb_configRef();
-
 firebase.initializeApp(fb_config);
 
 var fb_ref = firebase.database().ref();
 
 var child = child_process.fork('./analysis/dispatch');
 child.send({head:"fbRef",data: fb_config});
-
-//Please leave this i may need it when we support multiple boards
-// fb_ref.child('active_boards').on('value',function(){
-//   child.send({head:"update_boards",data: ''});
-//   child.on('message', function(message) {
-// //console.log('[Parent] received message from child:', message);
-// });
-//});
 app.use('/public',express.static(__dirname+'/public'));
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/public/index.html');

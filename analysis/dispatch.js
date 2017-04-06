@@ -1,5 +1,7 @@
 var firebase = require('firebase');
 var child_process = require('child_process');
+var config = require('./../config.json');
+
 var flags = {
   isJargonActive: false,
   isDuplicateActive: false
@@ -20,6 +22,7 @@ var interpretMessageFromChild = function(flag,message){
   };
 
 var spawnAnalysis = function(){
+  if(config.analysisEnabled){
   var duplicateAnalysis = child_process.fork('./analysis/duplicates');
   var jargonAnalysis = child_process.fork('./analysis/jargon');
   
@@ -33,6 +36,7 @@ var spawnAnalysis = function(){
   jargonAnalysis.on('message',function(message){
     interpretMessageFromChild('isJargonActive',message)
   });
+}
 }
 
 process.on('message', function(message) {

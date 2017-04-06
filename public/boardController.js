@@ -84,6 +84,7 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
     vm.commitNewStory = function commitNewStory() {
         vm.newStoryTemplate.commit();
         vm.newStoryTemplate.reset();
+        flagBoardForAnalysis();
     };
     
     vm.storyTitleChanged = function storyTitleChanged(story) {
@@ -95,7 +96,7 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
     }
     
     vm.storyBodyChanged = function storyBodyChanged(story) {
-        
+        flagBoardForAnalysis();
         var analysis = storyValidationClient.validStoryFormat(story.body);
         
         if (analysis.pass) {
@@ -128,7 +129,10 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
        
     
     
-    
+    function flagBoardForAnalysis() {
+        vm.board.child('edited').child('duplicate').set(true);
+        vm.board.child('edited').child('jargon').set(true);
+    }
     /* dragging functionality */
     function storiesReady() {
         // applies droppable functionality to any UI element with the class "drop-zone"
@@ -160,47 +164,5 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
         ui.draggable.css("top", 0);
     }
     
-    // 
-    vm.onClick_CreateStory = function createStory(){
-        vm.newStoryTemplate.commit();
-        vm.newStoryTemplate.reset();
-        resetBoardEditFlag()
-    };
-    
-    vm.onChange_updateStory = function updateStory(story){
-        vm.board.child('stories')
-            .child(story.$id)
-            .update({
-                body: story.body || '',
-                name: story.name || '',
-                status: story.status
-            });
-            resetBoardEditFlag();
-    };
-    // todo how do I get the name of the board
-    //You have to asynchronously retrieve it from the Firebase object reference
-    vm.temp = $firebaseObject(vm.board.child('name'));
-    vm.temp.$loaded().then(function setBoardName(){
-        vm.boardname = vm.temp.$value;
-        $("#board_name").text(vm.boardname);
-    });
-    
-    function resetBoardEditFlag(){
-        vm.board.child('edited').child('jargon').set(true);
-        vm.board.child('edited').child('duplicate').set(true);
-    }
-
-    function storiesReady() {
-        // applies droppable functionality to any UI element with the class "drop-zone"
-        $( ".drop-zone" ).droppable({
-            drop: updateStoryState
-        });
-        // applies draggable functionality to any UI element with the class "drag"
-        $timeout(()=>{$(".drag" ).draggable()});
-    }    
-
-    
     /* scary place where story rows and sorting happens */
-
 }
-

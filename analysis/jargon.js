@@ -22,8 +22,9 @@ process.on('message', function(message) {
 });
 
 var beginAnalysis = function() {
-  firebaseBoardRef.child('edited').on('value',function(snap){
+  firebaseBoardRef.child('edited').child('jargon').on('value',function(snap){
 		if(!isActive && snap.val()){
+      storiesCache = [];
       console.log(!isActive, snap.val());
 			isActive = true;
       firebaseBoardRef.child('edited').child('jargon').set(false);
@@ -63,10 +64,10 @@ function jargonChecker(story){
    counter++;
    counter2=0;
   }
-  var firebaseJargonRef = firebaseStoriesRef.child(story.id).child('analysisLog').child('jargon');
-  firebaseJargonRef.once('value',function(snap){
-    if(snap.val() != detectedJargon){
-      firebaseJargonRef.set(detectedJargon);
-    }
-  });
+  var firebaseJargonRef = firebaseStoriesRef.child(story.id).child('analysisLog').child('jargon').set(detectedJargon);
+  //firebaseJargonRef.once('value',function(snap){
+  //   if(snap.val() != detectedJargon){
+  //     firebaseJargonRef.set(detectedJargon);
+  //   }
+  // });
  }
