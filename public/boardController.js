@@ -37,6 +37,29 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
         status: vm.storyStates[3]
     }
     
+    vm.activeStory = {
+        name: '',
+        body: '',
+        bindToStoryById: function(storyId) {
+            
+        },
+        onNameChange: function() {
+            fbObject.name = this.name;
+        },
+        onBodyChange: function() {
+            
+        },
+        onStatusChange: function() {
+            
+        },
+        startEditing: function() {
+            $('#active_story_screen').show();
+        },
+        stopEditing: function() {
+            $('#active_story_screen').hide();
+        }
+    }
+    
     vm.newStoryTemplate = {
         body: vm.defaultStory.body,
         name: vm.defaultStory.name,
@@ -75,11 +98,11 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
     
     vm.activateNewStoryCard = function activateNewStoryCard(){
         vm.newStoryTemplate.reset();
-        $(".modal").show();
+        $("#new_story_screen").show();
     }
-    vm.cancelNewStoryCard = function cancelNewStoryCard() {
+    vm.cancelNewStoryModal = function cancelNewStoryModal() {
         vm.newStoryTemplate.reset();
-        $(".modal").hide();
+        $("#new_story_screen").hide();
     }
     vm.commitNewStory = function commitNewStory() {
         vm.newStoryTemplate.commit();
@@ -133,6 +156,17 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
         vm.board.child('edited').child('duplicate').set(true);
         vm.board.child('edited').child('jargon').set(true);
     }
+    
+    function notecardBriefDoubleClick() {
+        
+        var brief = $(this);
+        var storyId = $(this).attr('id');
+        
+        vm.activeStory.bindToStoryById(storyId);
+        vm.activeStory.startEditing();
+        
+    }
+    
     /* dragging functionality */
     function storiesReady() {
         // applies droppable functionality to any UI element with the class "drop-zone"
@@ -140,7 +174,10 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
             drop: draggableDropOnZone
         });
         // applies draggable functionality to any UI element with the class "drag"
-        $timeout(()=>{$(".drag" ).draggable()});
+        $timeout(()=>{
+            $('.drag').draggable();
+            $('.notecard_brief').dblclick(notecardBriefDoubleClick);
+        });
     }    
     
     // when a story is dropped on a drop zone, change its acceptance state and fix positioning

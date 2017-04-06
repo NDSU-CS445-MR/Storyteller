@@ -186,7 +186,7 @@ div.notecard select {
     position: absolute;
     margin: 4px;
 }
-div.notecard div.notecard-bottom-margin {
+div.notecard div.bottom_margin {
     grid-row: 3;
     padding-left: 4px; padding-right: 4px;
     height: 100%;
@@ -205,21 +205,25 @@ button.debug-order {
     display: none;
 }
 /* end user story formatting */
-/* new notecard formatting */
-#new_story_screen{
+/* notecard_brief formatting */
+
+/*  */
+/* modal notecard formatting */
+div.modal.modal_story{
     height: 100%;
     width: 100%;
     position: absolute;
     align: center;
 }
-div#new_story_cancel_margin{
+div.cancel_modal{
     opacity: .7;
     height: 100%;
     width: 100%;
     position: fixed;
     background-color: black;
+    z-index:-1;
 }
-div.notecard-new {
+div.notecard_detailed {
     background-color: #DDA;
     height: 80vh; width: 80vw;
     display: grid;
@@ -228,14 +232,18 @@ div.notecard-new {
     position: absolute;
     border: bold;
     border-color: black;
+    
+    grid-template-rows: 8rem calc(100% - 12rem) 4rem;
 }
-div.notecard-new div.notecard-bottom-margin{
+div.notecard_detailed div.bottom_margin{
     bottom: 0; right: 0;
     margin: 0px;
-    padding: 0px;
-    position: absolute;
-    display: inline-block;
+    padding: 4px;
 }
-div.notecard-new button.save, div.notecard-new button.cancel {
+div.notecard_detailed div.bottom_margin button{
+    height: 100%;
+    float: right;
+}
+div.notecard_detailed button.save, div.notecard_detailed button.cancel {
     margin: 0px;
 }

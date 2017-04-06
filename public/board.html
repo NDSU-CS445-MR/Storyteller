@@ -1,18 +1,34 @@
 <!-- new user story model, hidden by default -->
-<div id="new_story_screen" class="modal">
-    <div id="new_story" class="notecard notecard-new modal">
+<div id="new_story_screen" class="modal modal_story">
+    <div id="new_story" class="modal notecard notecard_detailed">
         <div class="userstory_key create_userstory_key">
             <input type="text" ng-model="vm.newStoryTemplate.name" placeholder="new user story name"></input>
         </div>
         <div class="story_body">
             <textarea id="newStoryBody" ng-model="vm.newStoryTemplate.body" ng-change="vm.newStoryTemplate.changed();"></textarea>
         </div>
-        <div class="notecard-bottom-margin">
-            <button class="save btn btn-default" type="button" ng-click="vm.commitNewStory();">Save new story</button>
-            <button class="cancel btn btn-default" type= "button" ng-click="vm.cancelNewStoryCard();">Cancel</button>
+        <div class="bottom_margin">
+            <button class="save btn btn-default" type="button" ng-click="vm.commitNewStory();">Save</button>
+            <button class="save btn btn-default" type="button" ng-click="vm.commitNewStory();vm.cancelNewStoryModal();">Save and close</button>
+            <button class="cancel btn btn-default" type= "button" ng-click="vm.cancelNewStoryModal();">Cancel</button>
         </div>
     </div>
-    <div id="new_story_cancel_margin" style="z-index:-1;width:100%;height:100%" ng-click="vm.cancelNewStoryCard();"></div>
+    <div id="new_story_cancel_margin" class="cancel_modal" ng-click="vm.cancelNewStoryModal();"></div>
+</div>
+</div>
+<div id="active_story_screen" class="modal modal_story">
+    <div id="active_story" class="modal notecard notecard_detailed">
+        <div class="userstory_key">
+            <input type="text" ng-model="vm.activeStory.name" ng-change="vm.activeStory.onNameChange()" placeholder="user story name"value="blank!"></input>
+        </div>
+        <div class="story_body">
+            <textarea ng-model="vm.activeStory.body" ng-change="vm.activeStory.onBodyChange()" placeholder="user story body"></textarea>
+        </div>
+        <div class="bottom_margin">
+
+        </div>
+    </div>
+    <div id="active_story_cancel_margin" class="cancel_modal" ng-click="vm.activeStory.stopEditing();"></div>
 </div>
 </div>
 <!-- user story board -->
@@ -21,14 +37,14 @@
     <div class="drop-zone-header"><h1>{{acceptance}}</h1></div>
     <div class="drop-grid">
         <div ng-repeat="story in vm.stories | filter: { status: acceptance } track by $index">
-            <div id="{{story.$id}}"class="notecard drag">
+            <div id="{{story.$id}}" class="notecard notecard_brief drag">
                 <div class="userstory_key">
                     <input class="userstory_name" type="text" ng-change="vm.storyTitleChanged(story);" ng-model="story.name">
                 </div>
                 <div class="story_body">
                     <textarea class="story_body_textarea" ng-change="vm.storyBodyChanged(story);" ng-model="story.body"></textarea>
                 </div>
-                <div class="notecard-bottom-margin">
+                <div class="notecard_bottom_margin">
                     <div class="badge flag flag-duplicate" ng-if="story.analysisLog.duplicates != null">
                         possible duplicate
                     </div>
