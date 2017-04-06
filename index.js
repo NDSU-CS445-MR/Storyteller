@@ -16,6 +16,6 @@ app.get('/', function(req, res){
 	res.sendFile(__dirname + '/public/index.html');
 });
 
-http.listen(config.butts, function(){
-	console.log('listening on *:' + config.butts);
+http.listen(config.port, function(){
+	console.log('listening on *:' + config.port);
 });
