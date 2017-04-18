@@ -38,19 +38,29 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
     }
     
     vm.activeStory = {
+		story: {},
         name: '',
         body: '',
-        bindToStoryById: function(storyId) {
-            
-        },
+		bindToStoryById: function(story){
+	        vm.activeStory.story = story;
+			console.log(vm.activeStory.story);
+			},
         onNameChange: function() {
-            fbObject.name = this.name;
+            story.name = vm.activeStory.story.name;
         },
+		takeOut: function takeOutEdit() {
+			vm.board.child('stories').pull(story)
+		},
         onBodyChange: function() {
-            
+		console.log("fuck you");
+		console.log(story.body);
+		console.log(vm.activeStory.story.body);
+		console.log(this.story.body);
+		console.log(this.body);
+		//story.body = vm.activeStory.story.body;
         },
         onStatusChange: function() {
-            
+            story.status = vm.activeStory.story.status;
         },
         startEditing: function() {
             $('#active_story_screen').show();
@@ -157,12 +167,16 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
         vm.board.child('edited').child('jargon').set(true);
     }
     
-    function notecardBriefDoubleClick() {
-        
-        var brief = $(this);
-        var storyId = $(this).attr('id');
-        
-        vm.activeStory.bindToStoryById(storyId);
+    vm.onDoubleClick = function(story) {
+		console.log(story);
+		vm.activeStory.bindToStoryById(story);
+        //update firebase object to reflect new status
+        //story.$loaded().then(function updateFirebaseStory(){
+         //   vm.board.child('stories')
+          //      .child(storyId)
+        //});
+        //$('#editBody').value = $(this).body;
+		//$('#editTitle').value = brief.name;
         vm.activeStory.startEditing();
         
     }
@@ -176,7 +190,6 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
         // applies draggable functionality to any UI element with the class "drag"
         $timeout(()=>{
             $('.drag').draggable();
-            $('.notecard_brief').dblclick(notecardBriefDoubleClick);
         });
     }    
     
