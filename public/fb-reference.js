@@ -12,7 +12,7 @@ function createFirebaseConnection($q){
     // todo describe object
     firebaseConnection.sessionStore = {
         currentUserKey: '-Ke1QRQYnknYmWwC48VA',
-        currentBoardKey: '-KdwTvkimpR2Rq9YB38L'
+        currentBoardKey: 'i dont know how to make a normal key'
     };
     
     // todo describe method
@@ -50,7 +50,25 @@ function createFirebaseConnection($q){
             ownerUser: board.ownerUser,
             users: [],
             stories: board.stories,
-            active: true
+            active: true,
+            acceptanceStatuses: {
+                mvp: {
+                    deletable: "no",
+                    order: 1,
+                    count: 0,
+                    display: true
+                },
+                "under consideration": {
+                    deletable: "no",
+                    order: 2,
+                    count: 0,
+                    display: true
+                },
+                "discarded": {
+                    deletable: "no",
+                    display: false
+                }
+            }
         };
         var boardRef = fb_reference.child('boards').push(newBoard);
         return boardRef;

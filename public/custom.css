@@ -74,12 +74,22 @@ nav.navbar button:hover .dropbtn {
 /* end navbar formatting */
 
 /* board formatting */
-
-
-/* grid and drop zone */
-div.grid-host {
-    display: grid;
+@media (min-width: 1900px) {
+    body {
+        --num-columns: 10;
+    }
 }
+@media (min-width: 1440px) and (max-width: 1900px){
+    body {
+        --num-columns: 8;
+    }
+}
+@media (max-width: 1440px) {
+    body {
+        --num-columns: 5;
+    }
+}
+/* grid and drop zone */
 div.drop-zone div.drop-grid {
     display: grid;
 }
@@ -92,53 +102,20 @@ div.drop-zone-header h1 {
     color: var(--theme-color);
 }
 /* mvp line */
-div.drop-zone.mvp {
+div.mvp-drop-zone {
     border-bottom: 4px solid #A33;
 }
 /* themes */
-div.drop-zone.mvp {
-    --theme-color: #DAA;
-}
-div.drop-zone.accepted {
-    --theme-color: #DDA;
-}
-div.drop-zone.stretch {
-    --theme-color: #AAD;
-}
-div.drop-zone.under-consideration {
-    --theme-color: #DAD;
+div.drop-zone {
+    z-index: -1;
 }
 /* media queries below (todo) */
-div.grid-host {
-    --total-columns: 5;
-}
-div.drop-zone.mvp {
-    --theme-color: #DAA;
-    --num-columns: var(--total-columns);
-    grid-column: 1 / 6;
-}
-div.drop-zone.accepted {
-    --theme-color: #DDA;
-    --num-columns: 3;
-    grid-column: 1 / 4;
-}
-div.drop-zone.stretch {
-    --theme-color: #AAD;
-    --num-columns: 1;
-    grid-column: 4 / 5;
-}
-div.drop-zone.under-consideration {
-    --theme-color: #DAD;
-    --num-columns: 1;
-    grid-column: 5 / 6;
-}
-/* spawn parent grid */
-div.grid-host {
-    grid-template-columns: repeat(var(--total-columns), calc(100vw / var(--total-columns))); 
-}
-/* spawn child grids */
+/* spawn acceptance grids */
 div.drop-zone div.drop-grid {
-    grid-template-columns: repeat(var(--num-columns), calc(100vw / var(--total-columns)));
+    grid-template-columns: repeat(var(--num-columns), calc(100vw / var(--num-columns)));
+    grid-auto-rows: calc(100vw / var(--num-columns) * 0.75);
+    min-height: 100px;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 /* end grid and drop zone */
 
@@ -148,52 +125,47 @@ div.drop-zone div.drop-grid {
 div.notecard {
     --notecard-margin: 4px;
     background-color: var(--theme-color);
-    width: calc(100% - (var(--notecard-margin) * 2));
-    height: 20vh;
     margin: var(--notecard-margin);
+    width: calc(100% - (var(--notecard-margin) * 2));
+    height: calc(100% - (var(--notecard-margin) * 2));
     
     display: grid;
-    grid-template-rows: 2rem calc(100% - 4rem) 2rem;
+    grid-template-rows: 3fr 1fr;
 }
 
 div.userstory_key {
     font-weight: bold;
-    font-size: 1.5rem;
+    font-size: 1rem;
     padding: 4px;
     
     grid-row: 1;
 }
-div.userstory_key input {
+div.userstory_key textarea {
     background: none;
-    width: 100%;
-    border: none;
-    border-top-left-radius: 4px; border-top-right-radius: 4px;
-}
-div.story_body {
-    padding: 4px;
-    
-    grid-row: 2;
-}
-div.story_body textarea {
-    font-size: 1rem;
-    background: none;
-    border: none;
     width: 100%;
     height: 100%;
+    border: none;
+    border-radius: 4px;
+    
+    resize: none;
 }
+div.userstory_key textarea:focus {
+    outline: none;
+}
+
 div.notecard select {
     bottom: 0; left: 0;
     position: absolute;
     margin: 4px;
 }
-div.notecard div.bottom_margin {
-    grid-row: 3;
+div.notecard div.notecard_bottom_margin {
+    grid-row: 2;
     padding-left: 4px; padding-right: 4px;
     height: 100%;
+    background-color: rgba(255, 255, 255, 0.25);
 }
 div.badge.flag {
-    font-size: 1rem;
-    
+    font-size: 0.75rem;
 }
 div.badge.flag-duplicate {
     background-color: #aa4;
@@ -201,8 +173,15 @@ div.badge.flag-duplicate {
 div.badge.flag-jargon {
     background-color: #4aa;
 }
-button.debug-order {
-    display: none;
+div.notecard div.drop-zone-notecard {
+    z-index: 0;
+    position:absolute;
+    width:50%;
+    height:100%;
+    /*pointer-events: none;*/
+}
+div.notecard div.drop-zone-notecard.right {
+    left: 50%;
 }
 /* end user story formatting */
 /* notecard_brief formatting */
@@ -234,6 +213,24 @@ div.notecard_detailed {
     border-color: black;
     
     grid-template-rows: 8rem calc(100% - 12rem) 4rem;
+}
+div.notecard_detailed div.userstory_key {
+    font-size: 2rem;
+}
+div.notecard_detailed div.story_body {
+    font-size: 3rem;
+}
+div.notecard_detailed div.story_body textarea {
+    background: none;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 4px;
+    
+    resize: none;
+}
+div.notecard_detailed div.story_body textarea:focus {
+    outline: none;
 }
 div.notecard_detailed div.bottom_margin{
     bottom: 0; right: 0;
