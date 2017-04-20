@@ -18,3 +18,10 @@ Other features of Storyteller include three-dimensional categorization of storie
 
 
 ## Contact
+
+## Credits
+Tyler Johnson
+Scott St.Amant
+James Corcoran
+Nathan Diemer
+Nathan Raatz
