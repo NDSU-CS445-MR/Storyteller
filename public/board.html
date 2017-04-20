@@ -20,13 +20,20 @@
 <div id="active_story_screen" class="modal modal_story">
     <div id="active_story" class="modal notecard notecard_detailed">
         <div class="userstory_key">
-            <textarea type="text" ng-model="vm.activeStory.name" ng-change="vm.activeStory.onNameChange()" placeholder="user story name" value="blank!"></textarea>
+            <textarea id="editTitle" type="text" ng-model="vm.activeStory.story.name" ng-change="vm.storyTitleChanged(vm.activeStory.story)" placeholder="user story name" value="blank!"></textarea>
         </div>
         <div class="story_body">
-            <textarea ng-model="vm.activeStory.body" ng-change="vm.activeStory.onBodyChange()" placeholder="user story body"></textarea>
+            <textarea id="editBody" ng-model="vm.activeStory.story.body" ng-change="vm.storyBodyChanged(vm.activeStory.story)"></textarea><!-- vm.activeStory.onBodyChange() -->
         </div>
-        <div class="bottom_margin">
 
+        <div class="bottom_margin">
+		       <div class="badge flag flag-duplicate" ng-if="vm.activeStory.story.analysisLog.duplicates != null">
+                        possible duplicate
+                    </div>
+                    <div class="badge flag flag-jargon" ng-if="vm.activeStory.story.analysisLog.jargon != null">
+                        possible jargon
+                    </div>
+            <button class="cancel btn btn-default" type= "button" ng-click="vm.activeStory.stopEditing();">Exit</button>
         </div>
     </div>
     <div id="active_story_cancel_margin" class="cancel_modal" ng-click="vm.activeStory.stopEditing();"></div>
@@ -36,8 +43,8 @@
 <div data-ng-repeat="acceptance in vm.acceptanceStatuses | filter: { display: 'true' } | orderBy: 'order'" name="{{acceptance.$id}}" class="drop-zone">
     <div class="drop-zone-header"><h1>{{acceptance.$id}}</h1></div>
     <div class="drop-grid">
-        <div ng-repeat="story in vm.stories | filter: { status: acceptance.$id } track by $index" ng-style="{ 'grid-column': '' + story.order }">
-            <div id="{{story.$id}}" class="notecard notecard_brief drag">
+        <div ng-repeat="story in vm.stories | filter: { status: acceptance.$id } | orderBy: 'order' track by $index " ng-style="{ 'grid-column': story.order + ' / ' + (story.order + 1) }">
+            <div id="{{story.$id}}" ng-dblclick="vm.onDoubleClick(story)" class="notecard notecard_brief drag">
                 <div class="drop-zone-notecard left"></div>
                 <div class="drop-zone-notecard right"></div>
                 <div class="userstory_key">
