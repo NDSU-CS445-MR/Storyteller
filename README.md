@@ -1,5 +1,9 @@
 # Storyteller
-
+## Requirements
+Chrome 57.0.2987.132 (or later)
+node.js 7.5 (or later)
+npm 4.1.2 (or later, should atoumatically install with node.js)
+firebase(see installation section)
 ## Overview
 
 Welcome to the Storyteller repository.
