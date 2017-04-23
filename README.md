@@ -2,10 +2,14 @@
 
 ## Table Of Contents
 [Overview](#)
+
 [Requirements](#Requirements)
-[Installation](#)
-[Usage](#)
-[](#Credits)
+
+[Installation](#Installation)
+
+[Usage](#Usage)
+
+[Credits](#Credits)
 (#Overview)
 ## Overview
 
@@ -24,7 +28,6 @@ npm 4.1.2 (or later, should atoumatically install with node.js)
 firebase(see installation section)
 
 ## Installation
-
 
 ## Usage
 
