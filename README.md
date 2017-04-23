@@ -1,9 +1,12 @@
 # Storyteller
-## Requirements
-Chrome 57.0.2987.132 (or later)
-node.js 7.5 (or later)
-npm 4.1.2 (or later, should atoumatically install with node.js)
-firebase(see installation section)
+
+## Table Of Contents
+[Overview](#)
+[Requirements](#Requirements)
+[Installation](#)
+[Usage](#)
+[](#Credits)
+(#Overview)
 ## Overview
 
 Welcome to the Storyteller repository.
@@ -14,10 +17,16 @@ While changes are being made, the server analyzes changes to find overly technic
 
 Other features of Storyteller include three-dimensional categorization of stories by acceptance and due date, perspective by user, and story groups.
 
+## Requirements
+Chrome 57.0.2987.132 (or later)
+node.js 7.5 (or later)
+npm 4.1.2 (or later, should atoumatically install with node.js)
+firebase(see installation section)
+
 ## Installation
 
 
-## Contact
+## Usage
 
 ## Credits
 Tyler Johnson
