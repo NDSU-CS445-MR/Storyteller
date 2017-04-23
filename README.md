@@ -1,7 +1,7 @@
 # Storyteller
 
 ## Table Of Contents
-[Overview](#)
+[Overview](#Overview)
 
 [Requirements](#Requirements)
 
@@ -10,8 +10,8 @@
 [Usage](#Usage)
 
 [Credits](#Credits)
-(#Overview)
-## Overview
+
+### <a name="Overview"></a>Overview
 
 Welcome to the Storyteller repository.
 Storyteller is a web-based application to assist the generation of user stories.
@@ -21,20 +21,19 @@ While changes are being made, the server analyzes changes to find overly technic
 
 Other features of Storyteller include three-dimensional categorization of stories by acceptance and due date, perspective by user, and story groups.
 
-## Requirements
+### <a name="Requirements"></a> Requirements
 Chrome 57.0.2987.132 (or later)
 node.js 7.5 (or later)
 npm 4.1.2 (or later, should atoumatically install with node.js)
 firebase(see installation section)
 
-## Installation
+### <a name="Installation"></a> Installation
 
-## #Usage
+### <a name="Usage"></a> Usage
 
-## Credits
+### <a name="Credits"></a> Credits
 Tyler Johnson
 Scott St.Amant
 James Corcoran
 Nathan Diemer
 Nathan Raatz
-#usage
