@@ -29,7 +29,7 @@ firebase(see installation section)
 
 ## Installation
 
-## Usage
+## #Usage
 
 ## Credits
 Tyler Johnson
@@ -37,3 +37,4 @@ Scott St.Amant
 James Corcoran
 Nathan Diemer
 Nathan Raatz
+#usage
