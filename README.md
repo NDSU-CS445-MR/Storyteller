@@ -1,5 +1,7 @@
 # Storyteller
 
+Find releases [here](https://github.com/NDSU-CS445-MR/Storyteller/tree/release)
+
 ## Table Of Contents
 [Overview](#Overview)
 
@@ -22,18 +24,51 @@ While changes are being made, the server analyzes changes to find overly technic
 Other features of Storyteller include three-dimensional categorization of stories by acceptance and due date, perspective by user, and story groups.
 
 ### <a name="Requirements"></a> Requirements
-Chrome 57.0.2987.132 (or later)
-node.js 7.5 (or later)
-npm 4.1.2 (or later, should atoumatically install with node.js)
-firebase(see installation section)
+Installation of some required software is covered in the Installation section. To install Google Chrome, visit [the download page](https://www.google.com/chrome/browser/)
+* Chrome 57.0.2987.132 or later
+* node.js 7.5 or later  
+* npm 4.1.2 or later (npm is typically packaged with node.js)  
+* Firebase
 
 ### <a name="Installation"></a> Installation
 
+Storyteller should be installable on any operating system that can run node.js.  
+#### Installing Node.js
+Follow the guide at [node.js.org](https://nodejs.org/en/download/package-manager/)
+
+#### Getting Storyteller
+Download the latest archive from [the release page](https://github.com/NDSU-CS445-MR/Storyteller/tree/release). Unzip this archive to where you would like Storyteller to be run from.
+
+#### Getting Dependencies
+Enter the Storyteller directory and run `npm install` to fetch Storyteller's dependencies.
+
+#### Configuration
+Copy the `config.json.template` file to `config.json` and modify the configuration values. Here's an example:
+```javascript
+{
+  // this number is the port on which the Storyteller webserver will run
+  "port": 8081,
+  // this flag turned story analysis on and off
+  "analysisEnabled": true
+}
+```
+
+If you wish to modify the jargon dictionary, make changes to the dictionary by modifying `jargonList.txt`.
+
+#### Firebase
+todo scott
+
+#### Starting Storyteller
+Enter the Storyteller directory and run `npm start` or `node index.js`.
+
 ### <a name="Usage"></a> Usage
+From a compatible browser, navigate to your web server's internet address followed by `:port_number` where port_number is the number assigned in `config.json`. If you choose to set the port number to 80 or 443, you may skip appending `:port_number` to the internet address.
 
 ### <a name="Credits"></a> Credits
-Tyler Johnson
-Scott St.Amant
-James Corcoran
-Nathan Diemer
-Nathan Raatz
+Mindroad AB [website](http://mindroad.se)  
+[North Dakota State University](http://ndsu.edu) [Computer Science Dept.](http://ndsu.edu/cs) and [Capstone Course](http://csprojects.cs.ndsu.nodak.edu/capstone/)  
+Tyler Johnson [@arctair](https://github.com/arctair)  
+Scott St.Amant [@Scootly23](https://github.com/scootly23)  
+James Corcoran [@goenff](https://github.com/goenff)  
+Nathan Diemer   
+Nathan Raatz [@XxChronOblivionxX](https://github.com/XxChronOblivionxX)
