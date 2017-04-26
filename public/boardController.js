@@ -350,11 +350,6 @@ function boardController ($timeout, $compile, $scope, firebaseConnection, $fireb
 			vm.board.child('stories').pull(story)
 		},
         onBodyChange: function() {
-		console.log("fuck you");
-		console.log(story.body);
-		console.log(vm.activeStory.story.body);
-		console.log(this.story.body);
-		console.log(this.body);
 		//story.body = vm.activeStory.story.body;
         },
         onStatusChange: function() {

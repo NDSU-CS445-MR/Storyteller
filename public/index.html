@@ -12,6 +12,7 @@
     
     <!-- angularjs and angularfire -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-cookies.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.js"></script>
     <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.js"></script>
     <!--TODO: Manage routes and angular dependancies through 1 JS file-->
@@ -29,6 +30,7 @@
     <script type="text/javascript" src="/public/fb-reference.js"></script>
     <script type="text/javascript" src="/public/story-validation-client.js"></script>
     <script type="text/javascript" src="/public/boardController.js"></script>
+    <script type="text/javascript" src="/public/sessionStore.js"></script>
     
     <!-- Style -->
     <!-- Todo host style dependencies locally -->
@@ -41,18 +43,6 @@
     <link rel="stylesheet" href="/public/custom.css">
 </head>
 <body>
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="#">Storyteller | <span id="board_name"></span></a>
-        </div>
-        <ul class="nav navbar-nav">
-            <li class="active"><a href="/">Home</a></li>
-            <li onClick="$(':root').css('font-size', parseInt($(':root').css('font-size')) - 2)"><a>v Aa</a></li>
-            <li onClick="$(':root').css('font-size', parseInt($(':root').css('font-size')) + 2)"><a>^ Aa</a></li>
-        </ul>
-      </div>
-    </nav>
     <ng-view></ng-view>
 </body>
 </html>
