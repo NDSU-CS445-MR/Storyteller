@@ -23,8 +23,8 @@ function boardController (
     /* fill in the name of board in the navbar */
     vm.boardName = $firebaseObject(vm.board.child('name'));
     vm.boardName.$loaded().then(function setBoardName(){
-        vm.boardname = vm.boardName.$value;
-        $("#board_name").text(vm.boardname);
+        vm.location = vm.boardName.$value;
+        //$("#board_name").text(vm.boardname);
     });
     
     /* get the number of columns used to create this board */
@@ -35,18 +35,27 @@ function boardController (
         });
     });
     
-    /* inject new story button to navbar */
-    var injected_nav_item = $("<li><a>New Story</a></li>");
-    injected_nav_item.attr('ng-click', 'vm.newStoryModal.open();');
-    $(".navbar-nav").append(injected_nav_item);
-    $compile($(".navbar-nav"))($scope);   
+    vm.injectNav = function() {
+        var target = $(".navbar-nav");
+        
+        /* inject new story button to navbar */
+        var injected_nav_item_new_story = $("<li><a>New Story</a></li>");
+        injected_nav_item_new_story.attr('ng-click', 'vm.newStoryModal.open();');
+        target.append(injected_nav_item_new_story);
+        
+        /* inject new category button to navbar */
+        var injected_nav_item_category = $("<li><a>New Category</a></li>");
+        injected_nav_item_category.attr('ng-click', 'vm.activateNewCategory();');
+        target.append(injected_nav_item_category);
+        
+        /* inject undo button to navbar */
+        var injected_nav_item_undo = $("<li><a>Undo</a></li>");
+        injected_nav_item_undo.attr('ng-click', 'vm.history.undo();');
+        target.append(injected_nav_item_undo);
+        
+        $compile(target)($scope);
+    };
     
-    /* inject new story button to navbar */
-    var injected_nav_item_category = $("<li><a>New Category</a></li>");
-    injected_nav_item_category.attr('ng-click', 'vm.activateNewCategory();');
-    $(".navbar-nav").append(injected_nav_item_category);
-    $compile($(".navbar-nav"))($scope);
-   
     // todo move storiesRef and stories into storyEngine
     vm.storiesRef = vm.board.child('stories');
     vm.storiesRef.on('value', storiesReady);
@@ -122,6 +131,7 @@ function boardController (
                 // gridEngine.onStoryAdd
             // shift statuses with order > current downwards
             // nullify status
+            console.error("not implemented");
         },
         events: {
             fbStatusesReady: function() {
@@ -171,16 +181,19 @@ function boardController (
             // else, find the correct grid position to put the story
             } else {
                 // todo
-                console.log('dropped at ' + offset.x + ' / ' + offset.y);
                 var measure = $('div.drop-zone div.drop-grid').first();
                 var rowHeight = measure.css('grid-auto-rows');
                 rowHeight = parseInt(rowHeight.substring(0, rowHeight.indexOf('px')));
                 var colWidth = measure.css('grid-template-columns');
                 colWidth = parseInt(colWidth.substring(0, colWidth.indexOf('px')));
-                console.log('grid settings: ' + rowHeight + ' / ' + colWidth);
                 var row = Math.floor(offset.y / rowHeight) + 1;
                 var col = Math.floor(offset.x / colWidth) + 1;
-                console.log('detected row ' + row + ' col ' + col);
+                // console.log('dropped at ' + offset.x + ' / ' + offset.y);
+                // console.log('grid settings: ' + rowHeight + ' / ' + colWidth);
+                // console.log('detected row ' + row + ' col ' + col);
+                
+                // todo check for conflict
+                
                 vm.gridEngine.setAttributes(story, row, col, cb);
             }
             
@@ -228,6 +241,12 @@ function boardController (
     
     vm.statusEngine.initialize();
     
+    vm.history = {
+        undo: function() {
+            console.error("not implemented");
+        }
+    }
+    
     // default default story
     vm.defaultStory = {
         body: 'As a I want so that ',
@@ -242,8 +261,7 @@ function boardController (
         body: '',
         bindToStoryById: function(story){
             vm.activeStory.story = story;
-            console.log(vm.activeStory.story);
-            },
+        },
         onNameChange: function() {
             story.name = vm.activeStory.story.name;
         },
@@ -251,12 +269,7 @@ function boardController (
             vm.board.child('stories').pull(story)
         },
         onBodyChange: function() {
-        console.log("fuck you");
-        console.log(story.body);
-        console.log(vm.activeStory.story.body);
-        console.log(this.story.body);
-        console.log(this.body);
-        //story.body = vm.activeStory.story.body;
+            //story.body = vm.activeStory.story.body;
         },
         onStatusChange: function() {
             story.status = vm.activeStory.story.status;
@@ -279,7 +292,6 @@ function boardController (
             vm.newStoryTemplate.name = vm.defaultStory.name;
             vm.newStoryTemplate.status = vm.defaultStory.status;
             vm.newStoryTemplate.bodySnapshot = vm.defaultStory.body;
-            console.log('reseting to ' + vm.newStoryTemplate.status);
         },
         commit: function commitNewStory() {
             // todo delegate to storyEngine
@@ -291,7 +303,6 @@ function boardController (
             var storyObj = $firebaseObject(newPostRef);
             storyObj.$loaded().then(function() {
                 vm.statusEngine.addStoryToStatus(storyObj, vm.newStoryTemplate.status);
-                console.log('adding story to ' + vm.newStoryTemplate.status);
                 vm.newStoryTemplate.reset();
             });
         },
@@ -379,28 +390,13 @@ function boardController (
     }
     
     vm.onDoubleClick = function(story) {
-        console.log(story);
         vm.activeStory.bindToStoryById(story);
-        //update firebase object to reflect new status
-        //story.$loaded().then(function updateFirebaseStory(){
-         //   vm.board.child('stories')
-          //      .child(storyId)
-        //});
-        //$('#editBody').value = $(this).body;
-        //$('#editTitle').value = brief.name;
         vm.activeStory.startEditing();
         
     }
     
     // todo move to storyEngine
     function storiesReady() {
-        /*
-        var storiesOrderRef = vm.storiesRef.orderByChild('order').equalTo(null);
-        storiesOrderRef.on('value', function(stories) {
-            stories.forEach(function(story) {
-            });
-        });
-        */
         // applies draggable functionality to any UI element with the class "drag"
         $timeout(()=>{
             $('.drag').draggable({

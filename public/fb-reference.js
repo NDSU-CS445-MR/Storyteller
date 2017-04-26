@@ -4,16 +4,120 @@
 	
 angular.module('app').factory('firebaseConnection', createFirebaseConnection);
 
-// what does $q do?
-function createFirebaseConnection($q){
+function createFirebaseConnection($q,sessionStore){
     var fb_reference = firebase.database().ref();
+    var fb_auth = firebase.auth();
     var firebaseConnection = {};
     
-    // todo describe object
     firebaseConnection.sessionStore = {
-        currentUserKey: '-Ke1QRQYnknYmWwC48VA',
-        currentBoardKey: '-Kibv581Q_giCS_NhjqP'
+        currentBoardKey: '-Kibv581Q_giCS_NhjqP',
+        currentUser: {
+            id: '-KiCr5cFW5EW2kFbVG1f',
+            email: null,
+            loggedIn: false,
+            type: 'admin'
+            }
     };
+    firebaseConnection.register = function(newUser){
+        var deferred = $q.defer();
+        fb_auth.createUserWithEmailAndPassword(newUser.email, newUser.password).then(function(res){
+            if(res.uid){
+                var user = {
+                    name: newUser.name,
+                    email: newUser.email,
+                    type: newUser.type || 'basic',
+                    uid: res.uid
+                }
+                fb_reference.child('users').push(user);
+                var response = {success:true}
+                deferred.resolve(response);
+            }
+            else{
+                var response = {success:false}
+                deferred.resolve(response);
+            }
+        });
+        return deferred.promise;
+    };
+    firebaseConnection.authorize = function(username,password){
+        var deferred = $q.defer();
+        fb_auth.signInWithEmailAndPassword(username,password).then(
+        function(authData){
+           if(authData.uid){
+                fb_reference.child('users').orderByChild('uid').equalTo(authData.uid).once('value',function(snap){
+                    snap.forEach(function(element){
+                        var user = element.val();
+                        firebaseConnection.sessionStore.currentUser.id = element.key;
+                        firebaseConnection.sessionStore.currentUser.name = user.name;
+                        firebaseConnection.sessionStore.currentUser.email = user.email;
+                        firebaseConnection.sessionStore.currentUser.type = user.type;
+                        firebaseConnection.sessionStore.currentUser.loggedIn = true;
+                        if(user.authorizedBoards[0]){
+                            firebaseConnection.sessionStore.currentUser.authorizedBoards = user.authorizedBoards;
+                        }
+                        sessionStore.setSessionData(firebaseConnection.sessionStore.currentUser);
+                           var response = {success:true};
+                            deferred.resolve(response);
+                    });
+                 });              
+           }
+        }
+        ).catch(function(error){
+             var response = {success: false}
+               deferred.resolve(response);
+        });
+        return deferred.promise;
+    }
+    firebaseConnection.updateUser = function(user){
+        var boardsList =[];
+        if(user.authorizeForAllBoards){
+            fb_reference.child('boards').orderByChild('active').equalTo(true).once('value',function(snap){
+               snap.forEach(function(element){
+                   boardsList.push({name:element.val().name,key:element.key});
+                });
+            });
+        }
+        else boardsList = user.authorizedBoards;
+        
+        var updatedUser = {
+            uid: user.uid,
+            name: user.name,
+            email: user.email,
+            type: user.type,
+            authorizeForAllBoards: user.authorizeForAllBoards || false,
+            authorizedBoards: boardsList || 'null'
+        }
+        console.log(updatedUser);
+        if(user.$id){
+            fb_reference.child('users').child(user.$id).set(updatedUser);
+        }
+        else{
+            firebaseConnection.register(user);
+        }
+    }
+    firebaseConnection.deleteUser = function(user){
+        fb_reference.child('users').child(user.$id).remove();
+    }
+    firebaseConnection.deactivateBoard = function(board){
+        fb_reference.child('boards').child(board.$id).child('active').set(false);
+    }
+    firebaseConnection.updateBoard = function(board){
+        var boardRef = fb_reference.child('boards').child(board.$id)
+        boardRef.child('name').set(board.name);
+        boardRef.child('jargonEnabled').set(board.jargonEnabled || false);
+        boardRef.child('duplicateEnabled').set(board.duplicateEnabled || false);
+        if(board.blackList){
+            boardRef.child('blackList').set(board.blackList);
+        }
+
+    }
+    firebaseConnection.authorizeBoard = function(userKey,board){
+        fb_reference
+            .child('users')
+            .child(userKey)
+            .child('authorizedBoards')
+            .push(board);
+    }
     
     // todo describe method
     firebaseConnection.createUserProfile = function(){
@@ -81,6 +185,13 @@ function createFirebaseConnection($q){
             stories: board.stories,
             active: true,
             columns: 10,
+            jargonEnabled: board.jargonEnabled || false,
+            duplicateEnabled: board.duplicateEnabled || false,
+            blackList: board.blackList || '',
+            edited: {
+                jargon: false,
+                duplicate: false
+            }
         };
         var boardRef = fb_reference.child('boards').push(newBoard);
         firebaseConnection.createStatus(boardRef, {
@@ -115,6 +226,14 @@ function createFirebaseConnection($q){
     */
     
     // 
+    firebaseConnection.getBoards = function(){
+        return fb_reference
+            .child('boards').orderByChild('active').equalTo(true);
+    }
+    firebaseConnection.getUsers = function(){
+        return fb_reference
+            .child('users');
+    }
     firebaseConnection.getBoardByKey = function(boardKey) {
         return fb_reference
           .child('boards')

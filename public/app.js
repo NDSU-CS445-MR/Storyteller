@@ -1,5 +1,5 @@
 angular
-    .module('app',['ngRoute','firebase'])
+    .module('app',['ngCookies','ngRoute','firebase'])
     .config(config);
 
 function config($routeProvider){
