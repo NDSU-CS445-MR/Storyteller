@@ -8,12 +8,12 @@
             <textarea id="newStoryBody" ng-model="vm.newStoryTemplate.body" ng-change="vm.newStoryTemplate.changed();"></textarea>
         </div>
         <div class="bottom_margin">
-            <button class="save btn btn-default" type="button" ng-click="vm.commitNewStory();">Save</button>
-            <button class="save btn btn-default" type="button" ng-click="vm.commitNewStory();vm.cancelNewStoryModal();">Save and close</button>
-            <button class="cancel btn btn-default" type= "button" ng-click="vm.cancelNewStoryModal();">Cancel</button>
+            <button class="save btn btn-default" type="button" ng-click="vm.newStoryModal.save();">Save</button>
+            <button class="save btn btn-default" type="button" ng-click="vm.newStoryModal.saveAndClose();">Save and close</button>
+            <button class="cancel btn btn-default" type= "button" ng-click="vm.newStoryModal.close();">Cancel</button>
         </div>
     </div>
-    <div id="new_story_cancel_margin" class="cancel_modal" ng-click="vm.cancelNewStoryModal();"></div>
+    <div id="new_story_cancel_margin" class="cancel_modal" ng-click="vm.newStoryModal.close();"></div>
 </div>
 </div>
 <!-- detailed story view, hidden by default -->
@@ -39,14 +39,15 @@
     <div id="active_story_cancel_margin" class="cancel_modal" ng-click="vm.activeStory.stopEditing();"></div>
 </div>
 </div>
+<!-- <div id="newCategory" title="New Category"> -->
+    <!-- <p>Please enter the name of the new category (e.g. 'Release 2')</p> -->
+<!-- </div> -->
 <!-- user story board including all stories categorized by status -->
-<div data-ng-repeat="acceptance in vm.acceptanceStatuses | filter: { display: 'true' } | orderBy: 'order'" name="{{acceptance.$id}}" class="drop-zone">
-    <div class="drop-zone-header"><h1>{{acceptance.$id}}</h1></div>
+<div data-ng-repeat="acceptance in vm.statusEngine.statuses | filter: { display: true } | orderBy: 'order'" name="{{acceptance.$id}}" class="drop-zone {{acceptance.name}}-drop-zone drop-zone-bound">
+    <div class="drop-zone-header"><h1>{{acceptance.name}}</h1></div>
     <div class="drop-grid">
-        <div ng-repeat="story in vm.stories | filter: { status: acceptance.$id } | orderBy: 'order' track by $index " ng-style="{ 'grid-column': story.order + ' / ' + (story.order + 1) }">
+        <div ng-repeat="story in vm.stories | filter: { status: acceptance.name } | orderBy: 'status_row_col_index' track by $index " ng-style="{ 'grid-row': '' + story.row, 'grid-column': '' + story.col }">
             <div id="{{story.$id}}" ng-dblclick="vm.onDoubleClick(story)" class="notecard notecard_brief drag">
-                <div class="drop-zone-notecard left"></div>
-                <div class="drop-zone-notecard right"></div>
                 <div class="userstory_key">
                     <textarea class="userstory_name" type="text" ng-change="vm.storyTitleChanged(story);" ng-model="story.name"></textarea>
                 </div>
@@ -61,4 +62,9 @@
             </div>
         </div>
     </div>
+    <div class="drop-grid-next-row"></div>
+</div>
+<div class="drop-zone discard-drop-zone">
+    <div class="drop-zone-header"><h1>discard user story [!]</h1></div>
+    <div class="drop-grid"></div>
 </div>

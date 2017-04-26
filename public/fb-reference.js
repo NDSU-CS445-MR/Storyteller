@@ -12,7 +12,7 @@ function createFirebaseConnection($q){
     // todo describe object
     firebaseConnection.sessionStore = {
         currentUserKey: '-Ke1QRQYnknYmWwC48VA',
-        currentBoardKey: 'i dont know how to make a normal key'
+        currentBoardKey: '-Kibv581Q_giCS_NhjqP'
     };
     
     // todo describe method
@@ -43,6 +43,35 @@ function createFirebaseConnection($q){
     };
     /* board methods */
     
+    firebaseConnection.createStatus = function createStatus(boardRef, statusObj) {
+        boardRef
+            .child('statuses')
+            .push({
+                name: statusObj.name || 'unnamed',
+                order: statusObj.order || 2,
+                color: statusObj.color || '#AFA',
+                deletable: statusObj.deletable,
+                display: statusObj.display
+            });
+    }
+    
+    firebaseConnection.shiftStatusOrdersIfConflict = function shiftStatusOrders(boardRef, greaterThan) {
+        // check if there is a conflict
+        boardRef
+            .child('statuses')
+            .orderByChild('order')
+            .startAt(greaterThan)
+            .endAt(greaterThan)
+            .once('value', function() {
+                boardRef
+                    .child('statuses')
+                    .orderByChild('order')
+                    .startAt(greaterThan)
+                    // todo handle query results
+                    .once('value', null)
+            })
+    }
+    
     // create new board
     firebaseConnection.createBoard = function createBoard (board){
         var newBoard = {
@@ -51,26 +80,30 @@ function createFirebaseConnection($q){
             users: [],
             stories: board.stories,
             active: true,
-            acceptanceStatuses: {
-                mvp: {
-                    deletable: "no",
-                    order: 1,
-                    count: 0,
-                    display: true
-                },
-                "under consideration": {
-                    deletable: "no",
-                    order: 2,
-                    count: 0,
-                    display: true
-                },
-                "discarded": {
-                    deletable: "no",
-                    display: false
-                }
-            }
+            columns: 10,
         };
         var boardRef = fb_reference.child('boards').push(newBoard);
+        firebaseConnection.createStatus(boardRef, {
+            name: 'mvp',
+            order: 1,
+            color: '#F88',
+            deletable: false,
+            display: true
+        });
+        firebaseConnection.createStatus(boardRef, {
+            name: 'under consideration',
+            order: 2,
+            color: '#88F',
+            deletable: false,
+            display: true,
+            default: true
+        });
+        firebaseConnection.createStatus(boardRef, {
+            name: 'discarded',
+            color: '#FFF',
+            deletable: false,
+            display: false,
+        });
         return boardRef;
     };
     
