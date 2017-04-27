@@ -11,7 +11,7 @@ function createFirebaseConnection($q,sessionStore){
     var firebaseConnection = {};
     // todo describe object
     firebaseConnection.sessionStore = {
-        currentBoardKey: '-KdwTvkimpR2Rq9YB38L',
+        currentBoardKey: 'i dont know how to make a normal key',
         currentUser: {
             id: '-KiCr5cFW5EW2kFbVG1f',
             email: null,
