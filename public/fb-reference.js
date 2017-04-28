@@ -180,9 +180,6 @@ function createFirebaseConnection($q,sessionStore){
     firebaseConnection.createBoard = function createBoard (board){
         var newBoard = {
             name: board.name,
-            ownerUser: board.ownerUser,
-            users: [],
-            stories: board.stories,
             active: true,
             columns: 10,
             jargonEnabled: board.jargonEnabled || false,
