@@ -2,9 +2,20 @@
 :root {
     font-size: 12px;
 }
+html {
+    height: 100%;
+}
 body {
     background: url("img/blackboard.jpg") repeat-x center center fixed;
     background-repeat: repeat;
+}
+div.boardWrapper {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+div.liveStatusWrapper {
+    flex: 1;
 }
 /* end page formatting */
 
@@ -19,13 +30,8 @@ nav.wood {
 nav.wood .navbar-brand{
     color: white;
 }
-
 /* end navbar formatting */
 
-div#newCategory {
-}
-
-/* board formatting */
 /* grid and drop zone */
 div.drop-zone {
     background-color: rgba(255, 255, 255, 0.1);
@@ -54,17 +60,12 @@ div.mvp-drop-zone {
 /* discard line */
 div.discard-drop-zone {
     background-color: rgba(255, 0, 0, 0.15);
-    position: absolute;
-    bottom: 0;
     border-bottom: none;
     border-top: 1px solid white;
 }
 div.discard-drop-zone h1 {
     color: #FFF;
 }
-
-/* themes */
-/* media queries below (todo) */
 /* spawn acceptance grids */
 div.drop-zone div.drop-grid {
     grid-template-columns: repeat(var(--num-columns), calc(100vw / var(--num-columns)));
@@ -118,6 +119,7 @@ div.notecard div.notecard_bottom_margin {
     padding-left: 4px; padding-right: 4px;
     height: 100%;
     background-color: rgba(255, 255, 255, 0.25);
+    cursor: move;
 }
 div.badge.flag {
     font-size: 0.75rem;
@@ -143,12 +145,15 @@ div.notecard.ui-draggable-dragging {
     width: 100px;
     height: 100px;
 }
-/* modal notecard formatting */
-div.modal.modal_story{
+div.notecard.ui-draggable-dragging textarea {
+    cursor: default;
+}
+/* generic modal */
+div.modal {
     height: 100%;
     width: 100%;
     position: absolute;
-    align: center;
+    margin: auto;
 }
 div.cancel_modal{
     opacity: .7;
@@ -158,13 +163,24 @@ div.cancel_modal{
     background-color: black;
     z-index:-1;
 }
+/* modal form style */
+div.modal div.modal {
+    margin: auto;
+    padding: 12px;
+    display: block;
+}
+div.modal div.category_modal {
+    background-color: #FFF;
+    width: 40em;
+    height: 50em;
+    margin: auto;
+    border-radius: 4px;
+}
+/* modal notecard style */
 div.notecard_detailed {
     background-color: #DDA;
     height: 80vh; width: 80vw;
     display: grid;
-    margin: 0 auto;
-    margin-top: 80px;
-    position: absolute;
     border: bold;
     border-color: black;
     
@@ -201,6 +217,7 @@ div.notecard_detailed div.bottom_margin button{
 div.notecard_detailed button.save, div.notecard_detailed button.cancel {
     margin: 0px;
 }
+/* administrative and login style */
 .panel-login {
 	border-color: #ccc;
 	-webkit-box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.2);
