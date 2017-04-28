@@ -3,7 +3,8 @@
     font-size: 12px;
 }
 body {
-    background: url("img/blackboard.jpg") repeat-x center center fixed; 
+    background: url("img/blackboard.jpg") repeat-x center center fixed;
+    background-repeat: repeat;
 }
 /* end page formatting */
 
@@ -21,23 +22,16 @@ nav.wood .navbar-brand{
 
 /* end navbar formatting */
 
+div#newCategory {
+}
+
 /* board formatting */
-@media (min-width: 1900px) {
-    body {
-        --num-columns: 10;
-    }
-}
-@media (min-width: 1440px) and (max-width: 1900px){
-    body {
-        --num-columns: 8;
-    }
-}
-@media (max-width: 1440px) {
-    body {
-        --num-columns: 5;
-    }
-}
 /* grid and drop zone */
+div.drop-zone {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid white;
+    z-index: -1;
+}
 div.drop-zone div.drop-grid {
     display: grid;
 }
@@ -49,21 +43,33 @@ div.drop-zone-header h1 {
     margin: 0; margin-left: 8px;
     color: var(--theme-color);
 }
+div.drop-grid-next-row {
+    height: 50px;
+    border-top: 1px dashed #888;
+}
 /* mvp line */
 div.mvp-drop-zone {
     border-bottom: 4px solid #A33;
 }
-/* themes */
-div.drop-zone {
-    z-index: -1;
+/* discard line */
+div.discard-drop-zone {
+    background-color: rgba(255, 0, 0, 0.15);
+    position: absolute;
+    bottom: 0;
+    border-bottom: none;
+    border-top: 1px solid white;
 }
+div.discard-drop-zone h1 {
+    color: #FFF;
+}
+
+/* themes */
 /* media queries below (todo) */
 /* spawn acceptance grids */
 div.drop-zone div.drop-grid {
     grid-template-columns: repeat(var(--num-columns), calc(100vw / var(--num-columns)));
     grid-auto-rows: calc(100vw / var(--num-columns) * 0.75);
     min-height: 100px;
-    background-color: rgba(255, 255, 255, 0.1);
 }
 /* end grid and drop zone */
 
@@ -96,6 +102,7 @@ div.userstory_key textarea {
     border-radius: 4px;
     
     resize: none;
+    overflow: hidden;
 }
 div.userstory_key textarea:focus {
     outline: none;
@@ -126,15 +133,16 @@ div.notecard div.drop-zone-notecard {
     position:absolute;
     width:50%;
     height:100%;
-    /*pointer-events: none;*/
+    pointer-events: none;
 }
 div.notecard div.drop-zone-notecard.right {
     left: 50%;
 }
-/* end user story formatting */
-/* notecard_brief formatting */
-
-/*  */
+div.notecard.ui-draggable-dragging {
+    opacity: 0.5;
+    width: 100px;
+    height: 100px;
+}
 /* modal notecard formatting */
 div.modal.modal_story{
     height: 100%;
@@ -166,6 +174,7 @@ div.notecard_detailed div.userstory_key {
     font-size: 2rem;
 }
 div.notecard_detailed div.story_body {
+    padding: 4px;
     font-size: 3rem;
 }
 div.notecard_detailed div.story_body textarea {
