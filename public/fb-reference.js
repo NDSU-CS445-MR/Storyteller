@@ -155,7 +155,8 @@ function createFirebaseConnection($q,sessionStore){
                 order: statusObj.order || 2,
                 color: statusObj.color || '#AFA',
                 deletable: statusObj.deletable,
-                display: statusObj.display
+                display: statusObj.display,
+                allow_before: statusObj.allow_before
             });
     }
     
@@ -199,7 +200,8 @@ function createFirebaseConnection($q,sessionStore){
             order: 1,
             color: '#F88',
             deletable: false,
-            display: true
+            display: true,
+            allow_before: false
         });
         firebaseConnection.createStatus(boardRef, {
             name: 'under consideration',
@@ -207,13 +209,15 @@ function createFirebaseConnection($q,sessionStore){
             color: '#88F',
             deletable: false,
             display: true,
-            default: true
+            default: true,
+            allow_before: true
         });
         firebaseConnection.createStatus(boardRef, {
             name: 'discarded',
             color: '#FFF',
             deletable: false,
             display: false,
+            allow_before: false
         });
         return boardRef;
     };
