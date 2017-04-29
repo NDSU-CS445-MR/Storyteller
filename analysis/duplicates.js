@@ -1,25 +1,32 @@
 var firebase = require('firebase');
+var config = require('../public/fb-config.js').fb_configRef();
 var firebaseStoriesRef;
 var firebaseBoardRef;
 var isEdited = true;
 var isActive = false;
 var storiesCache = [];
+var boardKey;
 
-
+//Listens and responds to messages from the board's dispatcher
 process.on('message', function(message) {
 	switch(message.head){
 		case 'initialize':{
 			console.log('[duplicate] Recieved message: ',message.data);
-			firebaseBoardRef = firebase.initializeApp(message.data).database().ref().child('boards').child('-KdwTvkimpR2Rq9YB38L');
+			boardKey = message.data;
+			firebase.initializeApp(config)
+			firebaseBoardRef = firebase.database().ref().child('boards').child(message.data);
 			firebaseStoriesRef = firebaseBoardRef.child('stories');
 		    beginAnalysis();
+			break;
 		}
 		case 'disconnect':{
+			console.log("[duplicate]"+ boardKey +" Recieved kill message");
 			process.disconnect();
+			break;
 		}
 	}
 });
-
+//retrieves a list of all stories and begins analysis
 var beginAnalysis = function(){
 	firebaseBoardRef.child('edited').child('duplicate').on('value',function(snap){
 		if(!isActive && snap.val()){
@@ -28,7 +35,6 @@ var beginAnalysis = function(){
 			isActive = true;
 			firebaseBoardRef.child('edited').child('duplicate').set(false);
 			firebaseStoriesRef.once('value',function(stories){
-				console.log("Oops I did it again");
 			stories.forEach(function(story){
 			var tempStory = {
 				id: story.key,
@@ -40,17 +46,14 @@ var beginAnalysis = function(){
 			findDuplicates(story);
 		});
 			isActive = false;
-			console.log(isActive);
 		});
 		}
 	});
 }
 
 var logResults = function(story,updatedLog){
-	console.log(updatedLog);
 	var currentLog =[];
 	//populate currentLog
-	console.log('updated: ',updatedLog);
 	firebaseStoriesRef.child(story.id).child('analysisLog').child('duplicates').remove().then(function(){
 		updatedLog.forEach(function(log){
 			firebaseStoriesRef.child(story.id).child('analysisLog').child('duplicates').push(log);
@@ -60,10 +63,7 @@ var logResults = function(story,updatedLog){
 }
 
 var findDuplicates = function(storyCheck) {
-	//console.log(storyCheck);
-  //created or edited story
-  //Story body
-  //storyCheck = "As a Customer I want The system to utilize a web server So that Users get a web-based experience"; 
+
   var storyCheckBody = storyCheck.data.body;
   storyCheckBody= storyCheckBody.toLowerCase(); //converting to lowercase for comparison
   //Trimming required words, punctuation, and articles
@@ -91,11 +91,10 @@ var findDuplicates = function(storyCheck) {
   var updatedLog = [];
  storiesCache.forEach(function(comparedStory)
 	{
-		if(storyCheck.id != comparedStory.id){
+		if(storyCheck.id != comparedStory.id && storyCheck.data.status == comparedStory.data.status){
 		//var done = false; //changes to true after analysis
 		var counter = 0; //increments for each duplicate 
 
-		//var comparedStoryBody = "As a Customer I want The system to utilize a web server So that Users get a web-based experience"; //User Story being compared to
 		var comparedStoryBody = comparedStory.data.body;
 		comparedStoryBody=comparedStoryBody.toLowerCase(); //trim
 		comparedStoryBody = comparedStoryBody.replace(/as a /g, '');
@@ -127,9 +126,7 @@ var findDuplicates = function(storyCheck) {
 		if (counter /(storyArray.length) *100 >= 85 ) //Strong duplicate calculation
 		{	
       //Assign flag to data object
-			 console.log('[duplicate] Strong duplicate detected between', storyCheck.id, " and ", comparedStory.id);
 			
-			// console.log('DETAILS: ',comparedStoryBody,storyCheckBody,counter,storyArray.length);
 			var newLog = {
 				story: comparedStory.id,
 				details: 'strong duplicate detected',
@@ -151,7 +148,6 @@ var findDuplicates = function(storyCheck) {
 		}
 		
  });
- console.log('ANANA: ',updatedLog);
  logResults(storyCheck,updatedLog);
  updatedLog = [];
 }

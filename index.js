@@ -9,8 +9,26 @@ firebase.initializeApp(fb_config);
 
 var fb_ref = firebase.database().ref();
 
-var child = child_process.fork('./analysis/dispatch');
-child.send({head:"fbRef",data: fb_config});
+var childProcesses = [];
+var counter = 0;
+var startAnalysis = function(){
+	fb_ref.child('boards').orderByChild("active").equalTo(true).once('value',function(snap){
+		snap.forEach(function(board){
+			console.log(board.key);
+			childProcesses.push(child_process.fork('./analysis/dispatch'));
+			childProcesses[counter++].send({head:"fbRef",data:board.key});
+		});
+	});
+	fb_ref.child('newBoards').on('value',function(snap){
+		snap.forEach(function(boardKey){
+			childProcesses.push(child_process.fork('./analysis/dispatch'));
+			childProcesses[counter++].send({head:"fbRef",data:boardKey.val()});
+			fb_ref.child('newBoards').child(boardKey.key).remove();
+		});
+	});
+}
+startAnalysis()
+
 app.use('/public',express.static(__dirname+'/public'));
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/public/index.html');
