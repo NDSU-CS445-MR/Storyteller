@@ -148,7 +148,7 @@
         <label for="exampleInputEmail1">Board Key</label>
         <input type="text" class="form-control" id="exampleInputEmail1" ng-model="vm.activeData.$id" disabled>
       </div>
-      <button ng-if="!vm.creatingNew" type="button" ng-click="vm.onClick_openBoard()" class="btn btn-primary">Go to Board</button>
+      <button ng-if="!vm.creatingNew && !vm.deletedBoards" type="button" ng-click="vm.onClick_openBoard()" class="btn btn-primary">Go to Board</button>
     </div>
     </div>
     </div>
