@@ -1,6 +1,6 @@
 # Storyteller
 
-Find releases [here](https://github.com/NDSU-CS445-MR/Storyteller/tree/release)
+Find releases [here](https://github.com/NDSU-CS445-MR/Storyteller/releases)
 
 ## Table Of Contents
 [Overview](#Overview)
@@ -37,7 +37,7 @@ Storyteller should be installable on any operating system that can run node.js.
 Follow the guide at [node.js.org](https://nodejs.org/en/download/package-manager/)
 
 #### Getting Storyteller
-Download the latest archive from [the release page](https://github.com/NDSU-CS445-MR/Storyteller/tree/release). Unzip this archive to where you would like Storyteller to be run from.
+Download the latest archive from [the release page](https://github.com/NDSU-CS445-MR/Storyteller/releases). Unzip this archive to where you would like Storyteller to be run from.
 
 #### Getting Dependencies
 Enter the Storyteller directory and run `npm install` to fetch Storyteller's dependencies.
