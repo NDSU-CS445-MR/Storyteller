@@ -10,7 +10,7 @@ function createFirebaseConnection($q,sessionStore){
     var firebaseConnection = {};
     
     firebaseConnection.sessionStore = {
-        currentBoardKey: '-Kibv581Q_giCS_NhjqP',
+        currentBoardKey: 'i dont know how to make a normal key',
         currentUser: {
             id: '-KiCr5cFW5EW2kFbVG1f',
             email: null,
@@ -101,6 +101,9 @@ function createFirebaseConnection($q,sessionStore){
     firebaseConnection.deactivateBoard = function(board){
         fb_reference.child('boards').child(board.$id).child('active').set(false);
     }
+    firebaseConnection.deleteBoard = function(boardId){
+        fb_reference.child('boards').child(boardId).remove();
+    }
     firebaseConnection.updateBoard = function(board){
         var boardRef = fb_reference.child('boards').child(board.$id)
         boardRef.child('name').set(board.name);
@@ -181,9 +184,6 @@ function createFirebaseConnection($q,sessionStore){
     firebaseConnection.createBoard = function createBoard (board){
         var newBoard = {
             name: board.name,
-            ownerUser: board.ownerUser,
-            users: [],
-            stories: board.stories,
             active: true,
             columns: 10,
             jargonEnabled: board.jargonEnabled || false,
@@ -233,6 +233,10 @@ function createFirebaseConnection($q,sessionStore){
     firebaseConnection.getBoards = function(){
         return fb_reference
             .child('boards').orderByChild('active').equalTo(true);
+    }
+    firebaseConnection.getInactiveBoards = function(){
+        return fb_reference
+            .child('boards').orderByChild('active').equalTo(false);
     }
     firebaseConnection.getUsers = function(){
         return fb_reference

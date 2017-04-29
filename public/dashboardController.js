@@ -1,5 +1,5 @@
-angular.module('app').component('home',{
-	templateUrl: '/public/home.html',
+angular.module('app').component('dashboard',{
+	templateUrl: '/public/dashboard.html',
 	controllerAs: 'vm',
 	controller: function(firebaseConnection,$firebaseArray,$location,$timeout,$cookies){
 		var vm = this;
@@ -14,6 +14,8 @@ angular.module('app').component('home',{
 		vm.showUserDetail = false;
 		vm.showBoardDetail = false;
 		vm.showConfig = false;
+		vm.deletedBoards = false;
+		vm.showConfirm = false;
 		vm.backupData = {};
 		vm.activeData = {};
 		vm.boardsList = $firebaseArray(firebaseConnection.getBoards());
@@ -37,6 +39,7 @@ angular.module('app').component('home',{
 					break;
 				}
 				case 'board':{
+					vm.activeData.blackList = convertBlackList(vm.activeData.blackList);
 					vm.showUserDetail = false;
 					vm.showBoardDetail = true;
 					vm.showConfig = false;
@@ -130,6 +133,7 @@ angular.module('app').component('home',{
 		}
 		vm.onClick_saveBoard = function(){
 			if(vm.activeData.$id){
+				vm.activeData.blackList = convertBlackList(vm.activeData.blackList);
 				firebaseConnection.updateBoard(vm.activeData);
 			}
 			else{
@@ -138,12 +142,30 @@ angular.module('app').component('home',{
 			}
 			resetActiveDataBoard();
 		}
-		vm.onClick_deleteBoard = function(){
+		vm.onClick_deactivateBoard = function(){
 			firebaseConnection.deactivateBoard(vm.activeData);
 			vm.showBoardDetail = false;
 			$('#confirmModal').modal('hide');
 
 			window.setTimeout(hideDetail(),1000);
+		}
+		vm.onClick_deleteBoard = function(){
+			if(vm.activeData.confirmKey == vm.activeData.$id){
+				vm.showConfirm = false;
+				firebaseConnection.deleteBoard(vm.activeData.$id);
+			}
+			else{
+				vm.showConfirmError = true;
+			}
+			resetActiveDataBoard();
+			vm.showBoardDetail = false;
+			$('#confirmBoardDelete').modal('hide');
+		}
+		vm.onClick_showConfirm = function(){
+			vm.showConfirm = !vm.showConfirm;
+			if(!vm.showConfirm){
+				$('#confirmBoardDelete').modal('hide');
+			}
 		}
 		vm.onClick_addNew = function(){
 			resetActiveDataUser()
@@ -169,6 +191,16 @@ angular.module('app').component('home',{
 				return -1;
 			}
 		}
+		vm.onClick_viewInactiveBoards = function(){
+			$timeout(()=>{vm.boards = $firebaseArray(firebaseConnection.getInactiveBoards());});
+			vm.deletedBoards = true;
+			vm.showBoardDetail = false;
+		}
+		vm.onClick_hideInactiveBoards = function(){
+			$timeout(()=>{vm.boards = $firebaseArray(firebaseConnection.getBoards());});
+			vm.deletedBoards = false;
+			vm.showBoardDetail = false;
+		}
 		function resetActiveDataUser(){
 			vm.backupData = {}
 			vm.activeData = {
@@ -188,6 +220,23 @@ angular.module('app').component('home',{
 				vm.showBoardDetail = false;
 			}
 		}
+		function convertBlackList(list){
+			var res = "";
+			if(typeof(list) == 'object'){
+				res += list[0]
+				for(var x = 1;x<list.length;x++){
+					res += (", "+list[x])
+				}
+				return res;
+			}
+			if(typeof(list) == "string"){
+				res = list.split(",");
+				for(var x = 0;x<res.length;x++){
+					res[x] = res[x].trim();
+				}
+				return res;
+		}
 		
 	}
+}
 });
