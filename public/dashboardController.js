@@ -199,8 +199,11 @@ angular.module('app').component('dashboard',{
 				}
 				return res;
 			}
-			if(typeof(list) === "string"){
-				res = list.split(", ");
+			if(typeof(list) == "string"){
+				res = list.split(",");
+				for(var x = 0;x<res.length;x++){
+					res[x] = res[x].trim();
+				}
 				return res;
 		}
 		
