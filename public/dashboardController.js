@@ -37,6 +37,7 @@ angular.module('app').component('dashboard',{
 					break;
 				}
 				case 'board':{
+					vm.activeData.blackList = convertBlackList(vm.activeData.blackList);
 					vm.showUserDetail = false;
 					vm.showBoardDetail = true;
 					vm.showConfig = false;
@@ -130,11 +131,7 @@ angular.module('app').component('dashboard',{
 		}
 		vm.onClick_saveBoard = function(){
 			if(vm.activeData.$id){
-				var temp = vm.activeData.blackList.split(",");
-				temp.forEach(function(string){
-					string = string.trim(" ");
-				});
-				vm.activeData.blackList = temp;
+				vm.activeData.blackList = convertBlackList(vm.activeData.blackList);
 				firebaseConnection.updateBoard(vm.activeData);
 			}
 			else{
@@ -193,6 +190,20 @@ angular.module('app').component('dashboard',{
 				vm.showBoardDetail = false;
 			}
 		}
+		function convertBlackList(list){
+			var res = "";
+			if(typeof(list) == 'object'){
+				res += list[0]
+				for(var x = 1;x<list.length;x++){
+					res += (", "+list[x])
+				}
+				return res;
+			}
+			if(typeof(list) === "string"){
+				res = list.split(", ");
+				return res;
+		}
 		
 	}
+}
 });
