@@ -8,6 +8,7 @@ html {
 body {
     background: url("img/blackboard.jpg") repeat-x center center fixed;
     background-repeat: repeat;
+    --theme-color: #FFA;
 }
 div.boardWrapper {
     min-height: 100%;
@@ -29,6 +30,13 @@ nav.wood {
 }
 nav.wood .navbar-brand{
     color: white;
+}
+
+nav li.undo>a {
+    color: #888;
+}
+nav li.undo.available>a {
+    color: #FFF;
 }
 /* end navbar formatting */
 
@@ -177,24 +185,19 @@ div.modal div.category_modal {
     border-radius: 4px;
 }
 /* modal notecard style */
-div.notecard_detailed {
-    background-color: #DDA;
+div.modal div.notecard_detailed {
+    background-color: var(--theme-color);
     height: 80vh; width: 80vw;
-    display: grid;
-    border: bold;
-    border-color: black;
     
-    grid-template-rows: 8rem calc(100% - 12rem) 4rem;
+    display: flex;
+    flex-direction: column;
 }
-div.notecard_detailed div.userstory_key {
-    font-size: 2rem;
+div.notecard_detailed div {
+    padding: 0;
+    margin: 4px;
 }
-div.notecard_detailed div.story_body {
-    padding: 4px;
-    font-size: 3rem;
-}
-div.notecard_detailed div.story_body textarea {
-    background: none;
+div.notecard_detailed textarea {
+    background: rgba(255, 255, 255, 0.15);
     width: 100%;
     height: 100%;
     border: none;
@@ -202,20 +205,27 @@ div.notecard_detailed div.story_body textarea {
     
     resize: none;
 }
-div.notecard_detailed div.story_body textarea:focus {
+div.notecard_detailed textarea:focus {
     outline: none;
+}
+div.notecard_detailed div.userstory_key {
+    font-size: 4rem;
+}
+div.notecard_detailed div.status {
+    font-size: 1.5rem;
+}
+div.notecard_detailed div.story_body {
+    font-size: 3rem;
+    flex: 1;
 }
 div.notecard_detailed div.bottom_margin{
     bottom: 0; right: 0;
-    margin: 0px;
-    padding: 4px;
 }
 div.notecard_detailed div.bottom_margin button{
     height: 100%;
     float: right;
 }
 div.notecard_detailed button.save, div.notecard_detailed button.cancel {
-    margin: 0px;
 }
 /* administrative and login style */
 .panel-login {

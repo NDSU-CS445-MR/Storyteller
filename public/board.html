@@ -19,9 +19,9 @@
 <div id="active_story_screen" class="modal modal_story">
     <div id="active_story" class="modal notecard notecard_detailed">
         <div class="userstory_key">
-            <textarea id="editTitle" type="text" ng-model="vm.activeStory.story.name" ng-change="vm.storyTitleChanged(vm.activeStory.story)" placeholder="user story name"></textarea>
+            <textarea id="editTitle" type="text" ng-model="vm.activeStory.story.name" ng-change="vm.storyTitleChanged(vm.activeStory.story)" placeholder="user story name" rows="1"></textarea>
         </div>
-        <!-- <div class="status">belongs to <div ng-model="vm.activeStory.story.status"></div></div> -->
+        <div class="status">status: <span ng-bind="vm.activeStory.story.status"></span></div>
         <div class="story_body">
             <textarea id="editBody" ng-model="vm.activeStory.story.body" ng-change="vm.storyBodyChanged(vm.activeStory.story)"></textarea><!-- vm.activeStory.onBodyChange() -->
         </div>

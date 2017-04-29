@@ -49,7 +49,7 @@ function boardController (
         target.append(injected_nav_item_category);
         
         /* inject undo button to navbar */
-        var injected_nav_item_undo = $("<li><a>Undo</a></li>");
+        var injected_nav_item_undo = $("<li class='undo'><a>Undo</a></li>");
         injected_nav_item_undo.attr('ng-click', 'vm.history.undo();');
         target.append(injected_nav_item_undo);
         
@@ -271,8 +271,15 @@ function boardController (
             var storyId = ui.draggable.attr("id");
             // get the corresponding firebase object for the dropped user story
             vm.storyEngine.getStoryById(storyId, function(story) {
+                var status_old = story.status;
                 vm.statusEngine.removeStoryFromStatus(story, function() {
                     if (status == $('div.discard-drop-zone div.drop-zone-header h1').text()) {
+                        vm.history.pushUndo(function(){
+                            vm.statusEngine.addStoryToStatus(story,
+                                status_old,
+                                null,
+                                null);
+                        });
                         vm.statusEngine.discardStory(story, function() {});
                     } else {
                         vm.statusEngine.addStoryToStatus(
@@ -291,8 +298,24 @@ function boardController (
     vm.statusEngine.initialize();
     
     vm.history = {
+        
+        undoStack: [],
+        redoStack: [],
+        pushUndo: function(intent) {
+            vm.history.undoStack.push(intent);
+            $('li.undo').addClass('available');
+        },
         undo: function() {
-            console.error("not implemented");
+            // pop the first item from the stack
+              // and call it like a function
+            if (vm.history.undoStack.length > 0)
+                vm.history.undoStack.shift()();
+            if (vm.history.undoStack.length == 0)
+                $('li.undo').removeClass('available');
+
+        },
+        message: function(msg) {
+            alert(msg);
         }
     }
     
@@ -310,6 +333,12 @@ function boardController (
         body: '',
         bindToStoryById: function(story){
             vm.activeStory.story = story;
+            
+            var styleTarget = $('#active_story_screen');
+            var styleSource = $('#' + story.$id);
+            var computedSourceStyle = window.getComputedStyle(styleSource[0]);
+            styleTarget[0].style.setProperty('--theme-color',
+                computedSourceStyle.getPropertyValue('--theme-color'));
         },
         onNameChange: function() {
             story.name = vm.activeStory.story.name;
@@ -353,6 +382,10 @@ function boardController (
             storyObj.$loaded().then(function() {
                 vm.statusEngine.addStoryToStatus(storyObj, vm.newStoryTemplate.status);
                 vm.newStoryTemplate.reset();
+                vm.history.pushUndo(function() {
+                    var status = storyObj.status;
+                    vm.statusEngine.discardStory(storyObj);
+                });
             });
         },
         changed: function changed() {
