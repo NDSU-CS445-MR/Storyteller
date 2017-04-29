@@ -1,5 +1,5 @@
-angular.module('app').component('home',{
-	templateUrl: '/public/home.html',
+angular.module('app').component('dashboard',{
+	templateUrl: '/public/dashboard.html',
 	controllerAs: 'vm',
 	controller: function(firebaseConnection,$firebaseArray,$location,$timeout,$cookies){
 		var vm = this;
@@ -130,6 +130,11 @@ angular.module('app').component('home',{
 		}
 		vm.onClick_saveBoard = function(){
 			if(vm.activeData.$id){
+				var temp = vm.activeData.blackList.split(",");
+				temp.forEach(function(string){
+					string = string.trim(" ");
+				});
+				vm.activeData.blackList = temp;
 				firebaseConnection.updateBoard(vm.activeData);
 			}
 			else{

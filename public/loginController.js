@@ -32,7 +32,7 @@ angular.module('app').component('login',{
 		firebaseConnection.register(vm.userRegister).then(function(res){
 			console.log(res);
 			if(res.success){
-				$location.path('/home');
+				$location.path('/dashboard');
 			}
 			else{
 				resetRegister();
@@ -47,7 +47,7 @@ angular.module('app').component('login',{
 		firebaseConnection.authorize(vm.userLogin.email,vm.userLogin.password).then(function(res){
 			if(res.success){
 				console.log(firebaseConnection.sessionStore.currentUser);
-				$location.path('/home');
+				$location.path('/dashboard');
 		}
 			else{
 			vm.authFailed = !res.success;
