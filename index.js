@@ -11,7 +11,9 @@ var fb_ref = firebase.database().ref();
 
 var childProcesses = [];
 var counter = 0;
+
 var startAnalysis = function(){
+	//Spawns board dispatcher for all active boards
 	fb_ref.child('boards').orderByChild("active").equalTo(true).once('value',function(snap){
 		snap.forEach(function(board){
 			console.log(board.key);
@@ -19,6 +21,7 @@ var startAnalysis = function(){
 			childProcesses[counter++].send({head:"fbRef",data:board.key});
 		});
 	});
+	//listens for additon of new boards and spawns board dispatcher when they are created
 	fb_ref.child('newBoards').on('value',function(snap){
 		snap.forEach(function(boardKey){
 			childProcesses.push(child_process.fork('./analysis/dispatch'));
@@ -27,6 +30,7 @@ var startAnalysis = function(){
 		});
 	});
 }
+
 startAnalysis()
 
 app.use('/public',express.static(__dirname+'/public'));

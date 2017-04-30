@@ -11,7 +11,7 @@ var boardKey;
 process.on('message', function(message) {
 	switch(message.head){
 		case 'initialize':{
-			console.log('[duplicate] Recieved message: ',message.data);
+			//console.log('[duplicate] Recieved message: ',message.data);
 			boardKey = message.data;
 			firebase.initializeApp(config)
 			firebaseBoardRef = firebase.database().ref().child('boards').child(message.data);
@@ -20,7 +20,6 @@ process.on('message', function(message) {
 			break;
 		}
 		case 'disconnect':{
-			console.log("[duplicate]"+ boardKey +" Recieved kill message");
 			process.disconnect();
 			break;
 		}
@@ -29,11 +28,13 @@ process.on('message', function(message) {
 //retrieves a list of all stories and begins analysis
 var beginAnalysis = function(){
 	firebaseBoardRef.child('edited').child('duplicate').on('value',function(snap){
+		//Prevents multiple instances of analysis executing at once
 		if(!isActive && snap.val()){
 			storiesCache = [];
-			console.log('Starting duplicate analysis');
+			//console.log('Starting duplicate analysis');
 			isActive = true;
 			firebaseBoardRef.child('edited').child('duplicate').set(false);
+			//Listens to story object, if a story is changed analysis is initiated
 			firebaseStoriesRef.once('value',function(stories){
 			stories.forEach(function(story){
 			var tempStory = {
@@ -51,9 +52,9 @@ var beginAnalysis = function(){
 	});
 }
 
+//Updates the current log for the story being analized
 var logResults = function(story,updatedLog){
 	var currentLog =[];
-	//populate currentLog
 	firebaseStoriesRef.child(story.id).child('analysisLog').child('duplicates').remove().then(function(){
 		updatedLog.forEach(function(log){
 			firebaseStoriesRef.child(story.id).child('analysisLog').child('duplicates').push(log);
@@ -92,7 +93,6 @@ var findDuplicates = function(storyCheck) {
  storiesCache.forEach(function(comparedStory)
 	{
 		if(storyCheck.id != comparedStory.id && storyCheck.data.status == comparedStory.data.status){
-		//var done = false; //changes to true after analysis
 		var counter = 0; //increments for each duplicate 
 
 		var comparedStoryBody = comparedStory.data.body;
@@ -120,32 +120,30 @@ var findDuplicates = function(storyCheck) {
 					break;
 				}
 			}
-			}
+		}
 		if(counter != 1 && storyArray.length != 1){
-
-		if (counter /(storyArray.length) *100 >= 85 ) //Strong duplicate calculation
-		{	
-      //Assign flag to data object
-			
-			var newLog = {
-				story: comparedStory.id,
-				details: 'strong duplicate detected',
-
-			};
-			updatedLog.push(newLog);
+			var potentialThreshold = 60; //change this to adjust detection sensativity (Higher = less sensative)
+			var strongThreshold = 85;//change this to adjust the detection sensativity (Higher = less sensative)
+			if (counter /(storyArray.length) *100 >= strongThreshold ) //Strong duplicate calculation
+			{				
+				//create new log object to show details in duplicate detection	
+				var newLog = {
+					story: comparedStory.id,
+					details: 'strong duplicate detected',
+				};
+				updatedLog.push(newLog);
+			}
+			else if (counter /(storyArray.length) *100 >= potentialThreshold) //Potential duplicate calculation
+			{
+				var newLog = {
+					story: comparedStory.id,
+					details: 'possible duplicate detected',
+				};
+				updatedLog.push(newLog);
+			}
 		}
-		else if (counter /(storyArray.length) *100 >= 60) //Potential duplicate calculation
-		{
-
-			var newLog = {
-				story: comparedStory.id,
-				details: 'possible duplicate detected',
-			};
-			updatedLog.push(newLog);
-		}
-	}
 	
-		}
+	}
 		
  });
  logResults(storyCheck,updatedLog);

@@ -9,29 +9,14 @@ var flags = {
 var initializeMessage;
 var storiesCache = [];
 
-var killMessage = {
-  head:'disconnect'
-}
-
-var interpretMessageFromChild = function(flag,message){
-    switch(message){
-      case 'starting analysis':{
-        flags[flag] = true;
-        console.log(flags.isJargonActive);
-      }
-      case 'analysis complete':{
-        flags[flag] = false;
-      }
-    }
-  };
-
 var analysisManager = function(){
   firebase.initializeApp(config)
   var boardRef = firebase.database().ref().child('boards');
   boardRef = boardRef.child(initializeMessage.data);
   var duplicateAnalysis = {};
   var jargonAnalysis = {};
-  //Watch for chnge to Duplicate analysis configuration and react accordingly
+
+  //Watch for change in Duplicate analysis configuration and react accordingly
   boardRef.child('duplicateEnabled').on('value',function(snap){
     if(snap.val() && !flags.isDuplicateActive){
         duplicateAnalysis = child_process.fork('./analysis/duplicates');
@@ -39,10 +24,12 @@ var analysisManager = function(){
         flags.isDuplicateActive = true;
     }
     if(!snap.val() && flags.isDuplicateActive){
+      //Termintates child process
       duplicateAnalysis.kill('SIGINT');
       flags.isDuplicateActive = false;
     }
   });
+  
   //Watch for change in Jargon analysis configuration and react accordingly
    boardRef.child('jargonEnabled').on('value',function(snap){
     if(snap.val() && !flags.isJargonActive){
@@ -51,10 +38,12 @@ var analysisManager = function(){
         flags.isJargonActive = true;
     }
     if(!snap.val() && flags.isJargonActive){
+      //Terminate child process
       jargonAnalysis.kill('SIGINT');
       flags.isJargonActive = false;
     }
   });
+  //Watch for change in board active state and react accordingly
   boardRef.child('active').on('value',function(snap){
     if(!snap.val()){
       if(flags.isDuplicateActive){
@@ -67,6 +56,7 @@ var analysisManager = function(){
   });
 }
 
+//Interprets message from parent and starts analysis child management for the board
 process.on('message', function(message) {
   console.log('[DISPATCH] received message from server:', message);
   switch(message.head){
