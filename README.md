@@ -56,7 +56,26 @@ Copy the `config.json.template` file to `config.json` and modify the configurati
 If you wish to modify the jargon dictionary, make changes to the dictionary by modifying `jargonList.txt`.
 
 #### Firebase
-todo scott
+A new instance of Firebase can be implemented in three steps: 
+* Creating a new project 
+* Configuring authentication
+* Adding the Firebase reference to storyteller 
+
+Please note you will need a google account to create a new Firebase project. To create a new account go [here](https://accounts.google.com/signup).
+
+ ##### Creating a new project
+ 1.) After signing in to your google account go to the [firebase console](https://firebase.google.com/) and click "GET STARTED FOR FREE"<br /> 
+ 2.) Click on the "Add Project" tile and enter a name for your new project (name and location are arbitrary) then click the "CREATE PROJECT" button.<br />
+ 3.) Once the Project Overview page is loaded your new project has been created successfully.
+ 
+ ##### Configuring Authentication
+ 1.) While on the project overview page click the "Authentication" button on the left side menu and select "SIGN-IN METHOD" tab at the top.<br />
+ 2.) Enable Email/Password authentication.<br />
+ 
+ ##### Adding the Firebase reference to Storyteller
+ 1.) While on the project overview page click the "Add Firebase to your web app" icon at the top.<br />
+ 2.) Copy everything including the brackets after the `var config = ` and before the `firebase.initializeApp(config);` line.<br />
+ 3.) Paste the object after the `fb_config = ` and before the `//END FIREBASE CONFIGURATION OBJECT` comment.<br />
 
 #### Starting Storyteller
 Enter the Storyteller directory and run `npm start` or `node index.js`.
