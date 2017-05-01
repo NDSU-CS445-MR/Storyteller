@@ -8,6 +8,7 @@ angular.module('app').component('dashboard',{
 		vm.currentUserKey = vm.currentUser.key;
 		vm.location = "Admin Dashboard"
 		vm.search = "";
+		//Menu view state flags
 		vm.creatingNew = false;
 		vm.showBoardBlade = true;
 		vm.showUserBlade = false;
@@ -18,7 +19,9 @@ angular.module('app').component('dashboard',{
 		vm.showConfirm = false;
 		vm.backupData = {};
 		vm.activeData = {};
+		//Keep entire list of active boards
 		vm.boardsList = $firebaseArray(firebaseConnection.getBoards());
+		//Pull active user's authorizedBoards
 		if(vm.isAdmin){
 			vm.boards = $firebaseArray(firebaseConnection.getBoards());
 		}
@@ -27,6 +30,7 @@ angular.module('app').component('dashboard',{
 		}
 		vm.users = $firebaseArray(firebaseConnection.getUsers());
 
+		//Sets state flags depending on the object selected
 		vm.onClick_viewChild = function(type,data){
 			vm.creatingNew = false;
 			vm.activeData = angular.copy(data);
@@ -47,7 +51,7 @@ angular.module('app').component('dashboard',{
 				}
 			}
 		}
-
+		//Sets state flags depending if Users or Boards is selected
 		vm.onClick_selectBlade = function(blade){
 			vm.creatingNew = false;
 			vm.activeData = {};
@@ -82,6 +86,7 @@ angular.module('app').component('dashboard',{
 				}
 			}
 		}
+
 		vm.onClick_authorizeBoard = function(board){
 			var boardData = {
 				name: board.name,
@@ -161,12 +166,14 @@ angular.module('app').component('dashboard',{
 			vm.showBoardDetail = false;
 			$('#confirmBoardDelete').modal('hide');
 		}
+		//Shows Board delete confirmation modal or hides it if it is already open
 		vm.onClick_showConfirm = function(){
 			vm.showConfirm = !vm.showConfirm;
 			if(!vm.showConfirm){
 				$('#confirmBoardDelete').modal('hide');
 			}
 		}
+		//Creates new user or board depending on current view state
 		vm.onClick_addNew = function(){
 			resetActiveDataUser()
 			vm.creatingNew = true;
@@ -177,10 +184,12 @@ angular.module('app').component('dashboard',{
 				vm.showBoardDetail = true;
 			}
 		}
+		//Navigates to the selected board
 		vm.onClick_openBoard = function(){
 			firebaseConnection.sessionStore.currentBoardKey = vm.activeData.$id || vm.activeData.key;
 			$location.path('/board');
 		}
+		//Used to filter the user's authorized boards in their profile section
 		vm.checkUserAuthorization = function(boardId){
 			if(vm.activeData.authorizedBoards && vm.activeData.authorizedBoards != 'null'){
 			return vm.activeData.authorizedBoards.findIndex(function(element){
@@ -220,6 +229,7 @@ angular.module('app').component('dashboard',{
 				vm.showBoardDetail = false;
 			}
 		}
+		//Converts the blacklist from the database array to a string for editing and vise versa
 		function convertBlackList(list){
 			var res = "";
 			if(typeof(list) == 'object'){

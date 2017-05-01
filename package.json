@@ -6,7 +6,7 @@
   "scripts": {
     "debug": "esw --color public -w",
     "server": "node index.js",
-    "start": "npm-run-all --parallel debug server"
+    "start": "npm-run-all --parallel server"
   },
   "author": "",
   "license": "ISC",
