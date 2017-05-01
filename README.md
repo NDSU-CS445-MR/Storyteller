@@ -63,6 +63,8 @@ A new instance of Firebase can be implemented in three steps:
 
 Please note you will need a google account to create a new Firebase project. To create a new account go [here](https://accounts.google.com/signup).
 
+For a quick video tutorial click [here](https://youtu.be/m4qn-XmdMOM)
+
  ##### Creating a new project
  1.) After signing in to your google account go to the [firebase console](https://firebase.google.com/) and click "GET STARTED FOR FREE"<br /> 
  2.) Click on the "Add Project" tile and enter a name for your new project (name and location are arbitrary) then click the "CREATE PROJECT" button.<br />
