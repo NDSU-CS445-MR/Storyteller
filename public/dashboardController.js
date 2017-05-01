@@ -30,6 +30,7 @@ angular.module('app').component('dashboard',{
 		vm.onClick_viewChild = function(type,data){
 			vm.creatingNew = false;
 			vm.activeData = angular.copy(data);
+      console.log(vm.activeData.$id);
 			vm.backupData = angular.copy(data);
 			switch(type){
 				case 'user':{
@@ -40,6 +41,7 @@ angular.module('app').component('dashboard',{
 				}
 				case 'board':{
 					vm.activeData.blackList = convertBlackList(vm.activeData.blackList);
+          vm.activeData.statuses = $firebaseArray(firebaseConnection.getBoardByKey(vm.activeData.$id).child('statuses'));
 					vm.showUserDetail = false;
 					vm.showBoardDetail = true;
 					vm.showConfig = false;
@@ -67,7 +69,7 @@ angular.module('app').component('dashboard',{
 					vm.showBoardDetail = false;
 					vm.showUserBlade = true;
 					vm.showUserDetail = false;
-				    vm.showUserConfig = false;
+				  vm.showUserConfig = false;
 					vm.search = "";
 					break;
 				}
@@ -235,8 +237,22 @@ angular.module('app').component('dashboard',{
 					res[x] = res[x].trim();
 				}
 				return res;
-		}
+      }
+    }
 		
-	}
-}
+    
+    vm.newStatus = {
+      name: '',
+      color: '#FFFFFF',
+      deletable: true,
+      display: true,
+      commit: function() {
+      },
+      
+    }
+    
+    vm.saveStatus = function(status) {
+      vm.activeData.statuses.$save(status);
+    }
+  }
 });

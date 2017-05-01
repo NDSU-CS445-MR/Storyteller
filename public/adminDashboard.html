@@ -1,306 +1,383 @@
-<div class=" row col-md-3">
-   <div class="col-md-1 side-nav">
-    <div class="side-menu">
-    <nav class="navbar navbar-default" role="navigation">
-    <div class="navbar-header">
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <div class="row col-md-3">
+      <div class="col-md-1 side-nav">
+        <div class="side-menu">
+          <nav class="navbar navbar-default" role="navigation">
+            <div class="navbar-header"></div>
+            <!-- Main Menu -->
+            <div class="side-menu-container">
+              <br />
+              <ul class="nav navbar-nav">
+                <li ng-class="{active : vm.showBoardBlade}">
+                  <a ng-click="vm.onClick_selectBlade(&#39;boards&#39;)"></a>
+                </li>
+                <li ng-class="{active : vm.showUserBlade}">
+                  <a ng-click="vm.onClick_selectBlade(&#39;users&#39;)" data-toggle="tooltip" title="Users"></a>
+                </li>
+                <li ng-class="{active : vm.showUserConfig}">
+                  <a ng-click="vm.onClick_selectBlade(&#39;config&#39;)"></a>
+                </li>
+              </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+          </nav>
+        </div>
+      </div>
+      <div class="col-md-6" style="position:fixed">
+        <div ng-if="vm.showBoardBlade || vm.showUserBlade" class="side-menu-secondary">
+          <div class="input-group" style="width:100%;">
+            <input type="text" class="form-control" style="height:50px;" placeholder="Search" ng-model="vm.search" />
+          </div>
+          <br />
+          <div class="btn-group-sm text-center" role="group">
+          <button ng-if="vm.showBoardBlade &amp;&amp; !vm.deletedBoards" type="button" class="btn btn-primary"
+          ng-click="vm.onClick_addNew()">Add New +</button> 
+          <button ng-if="vm.showBoardBlade &amp;&amp; !vm.deletedBoards" type="button" class="btn btn-danger"
+          ng-click="vm.onClick_viewInactiveBoards()">View Inactive Boards</button> 
+          <button ng-if="vm.showBoardBlade &amp;&amp; vm.deletedBoards" type="button" class="btn btn-success"
+          ng-click="vm.onClick_hideInactiveBoards()">View Active Boards</button></div>
+          <br />
+          <nav class="navbar navbar-default" role="navigation">
+            <div class="side-menu-container">
+              <ul class="nav navbar-nav">
+                <li ng-if="vm.showBoardBlade &amp;&amp;(board.active || vm.deletedBoards)"
+                ng-repeat="board in vm.boards | filter: vm.search" ng-class="{active : vm.activeData.$id === board.$id}">
+                  <a ng-click="vm.onClick_viewChild(&#39;board&#39;,board)">{{board.name}}</a>
+                </li>
+                <li ng-if="vm.showUserBlade &amp;&amp; user.$id != vm.currentUser.id"
+                ng-repeat="user in vm.users | filter: vm.search" ng-class="{active : vm.activeData.$id === user.$id}">
+                  <a ng-click="vm.onClick_viewChild(&#39;user&#39;,user)">{{user.email}}</a>
+                </li>
+              </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+          </nav>
+        </div>
+      </div>
     </div>
-
-    <!-- Main Menu -->
-    <div class="side-menu-container">
-        <br>
-        <ul class="nav navbar-nav">
-            <li ng-class="{active : vm.showBoardBlade}"><a ng-click="vm.onClick_selectBlade('boards')"><span class="glyphicon glyphicon-th-large"></span></a></li>
-            <li ng-class="{active : vm.showUserBlade}"><a ng-click="vm.onClick_selectBlade('users')" data-toggle="tooltip" title="Users"><span class="glyphicon glyphicon-user"></span></a></li>
-            <li ng-class="{active : vm.showUserConfig}"><a ng-click="vm.onClick_selectBlade('config')"><span class="glyphicon glyphicon-cog"></span></a></li>
-        </ul>
-    </div><!-- /.navbar-collapse -->
-</nav>
-    </div>
-   </div>
-  <div class="col-md-6" style="position:fixed">
-  
-    <div ng-if="vm.showBoardBlade || vm.showUserBlade" class="side-menu-secondary">
-    <div class="input-group"style="width:100%;"><input type="text" class="form-control" style="height:50px;" placeholder="Search" ng-model="vm.search"/></div>
-    <br>
-    <div class="btn-group-sm text-center" role="group">
-        <button ng-if="vm.showBoardBlade && !vm.deletedBoards"type="button" class="btn btn-primary" ng-click="vm.onClick_addNew()">Add New +</button>
-        <button ng-if="vm.showBoardBlade && !vm.deletedBoards" type="button" class="btn btn-danger" ng-click="vm.onClick_viewInactiveBoards()">View Inactive Boards</button>
-        <button ng-if="vm.showBoardBlade && vm.deletedBoards" type="button" class="btn btn-success" ng-click="vm.onClick_hideInactiveBoards()">View Active Boards</button>
-
-    </div>
-    <br>
-    <nav class="navbar navbar-default" role="navigation">
-
-    <div class="side-menu-container">
-        <ul class="nav navbar-nav">
-            <li ng-if="vm.showBoardBlade &&(board.active || vm.deletedBoards)" ng-repeat="board in vm.boards | filter: vm.search" ng-class="{active : vm.activeData.$id === board.$id}"><a ng-click="vm.onClick_viewChild('board',board)">{{board.name}}</a></li>
-            <li ng-if="vm.showUserBlade && user.$id != vm.currentUser.id"ng-repeat="user in vm.users | filter: vm.search" ng-class="{active : vm.activeData.$id === user.$id}"><a ng-click="vm.onClick_viewChild('user',user)">{{user.email}}</a></li>
-        </ul>
-    </div><!-- /.navbar-collapse -->
-</nav>
-    </div>
- </div>
-  </div>
-
-<!--END SIDEBAR-->
-<div class="col-md-5 detail-body">
-<div ng-if="vm.showUserDetail || vm.showUserConfig">
-<div class="panel panel-default">
-    <div class="panel-heading">
+    <!--END SIDEBAR-->
+    <div class="col-md-5 detail-body">
+      <div ng-if="vm.showUserDetail || vm.showUserConfig">
+        <div class="panel panel-default">
+          <div class="panel-heading">
             <h3 class="panel-title">{{vm.backupData.name || vm.activeData.name}}</h3>
-        </div>
-  <div class="panel-body">
-      <br>
-    <div class="col-md-6">
-      <div class="panel panel-default">
-          
-      <div class="panel-body"style="padding-top:5px;">
-                <h4><span class="label label-info" >Basic Info</span></h4>
-      <div class="form-group">
-        <label for="exampleInputEmail1">Name</label>
-        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Name" ng-model="vm.activeData.name">
-      </div>
-      <div class="form-group">
-        <label for="exampleInputEmail1">Email</label>
-        <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email" ng-model="vm.activeData.email">
-      </div>
-      <div ng-if="vm.creatingNew"class="form-group">
-        <label for="exampleInputEmail1">Password</label>
-        <input type="text" class="form-control"  ng-model="vm.activeData.password">
-      </div>
-      <div ng-if="!vm.creatingNew" class="form-group">
-        <label for="exampleInputEmail1">User Key</label>
-        <input type="text" class="form-control" id="exampleInputEmail1" ng-model="vm.activeData.$id" disabled>
-      </div>
-      <div class="form-group">
-        <label for="profileSelect">Profile Type</label>
-        <select id="profileSelect"class="form-control" ng-model="vm.activeData.type">
-          <option value="admin">Admin</option>
-          <option value="basic">Basic</option>
-        </select>
-      </div>
-     
-    </div>
-    
-      </div>
-    </div>
-    <div class="col-md-6">
-       <div class="panel panel-default">
-
-      <div class="panel-body" style="padding-top:5px">
-        
-        <h4><span class="label label-success" >Authorized Boards</span></h4>
-            <br>
-            <div class="checkbox">
-          <label><input type="checkbox" ng-model="vm.activeData.authorizeForAllBoards">Authorize User for all Boards</label>
-        </div>
-        <div ng-if="!vm.activeData.authorizeForAllBoards">
-        <div ng-if="vm.activeData.authorizedBoards" class="list-group">
-          <a ng-repeat="board in vm.activeData.authorizedBoards track by $index" class="list-group-item list-group-item-action">{{board.name}}</a>
-        </div>
-        <div ng-if="!vm.activeData.authorizedBoards || vm.activceData.authorizedBoards == 'null'"class="panel panel-danger">
+          </div>
           <div class="panel-body">
-          <p class="text-center">This user does not currently have any authorized boards.</p>
-          </div>
-          </div>
-               <div class="btn-group-md text-center">
-            <a class="btn btn-primary" data-toggle="modal" data-target="#myModal">Manage Boards</a>
-            </div>
-        </div>
-        <div ng-if="vm.activeData.authorizeForAllBoards">
-          <div class="panel panel-success">
-            <div class="panel-body">
-          <p class="text-center">This user is currently authorzed to view and edit all boards.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-       </div>
-    </div>
-  </div>
-  <div class="panel-footer" style="height:50px;">
-      <div class="btn-group-sm">
-        <div class="btn btn-default pull-right" style="color:green"ng-click="vm.onClick_saveUser()">Save</div>
-      </div>
-       <div class="btn-group-sm">
-        <div class="btn btn-default pull-right"data-toggle="modal" data-target="#confirmModal">Delete</div>
-      </div>
-    </div>
-</div>
-</div>
-<!--BEGIN BOARD DETAIL PANEL-->
-  <div ng-if="vm.showBoardDetail">
-    <div class="panel panel-default">
-   <div class="panel-heading">
-    <h3 class="panel-title">{{vm.activeData.name || '[UNTITLED]'}}</h3>
-  </div>
-  <div  class="panel-body" >
-    <div class="col-md-5">
-        <div class="panel panel-default">
-      <div class="panel-body" style="padding-top:5px">
-      <h4><span class="label label-info">Basic Info</span></h4>
-      <br>
-        <div class="form-group">
-          <label for="exampleInputEmail1">Name</label>
-          <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Name" ng-model="vm.activeData.name">
-        </div>
-      <div class="form-group">
-        <label for="exampleInputEmail1">Board Key</label>
-        <input type="text" class="form-control" id="exampleInputEmail1" ng-model="vm.activeData.$id" disabled>
-      </div>
-      <button ng-if="!vm.creatingNew && !vm.deletedBoards" type="button" ng-click="vm.onClick_openBoard()" class="btn btn-primary">Go to Board</button>
-    </div>
-    </div>
-    </div>
-    <div class="col-md-6">
-        <div class="panel panel-default">
-      <div class="panel-body" style="padding-top:5px">
-      <h4><span class="label label-success">Configurations</span></h4>
-      <br>
-         <div class="checkbox">
-          <label><input type="checkbox" ng-model="vm.activeData.duplicateEnabled">Enable Duplicate Analysis</label>
-        </div>
-           <div class="checkbox">
-          <label><input type="checkbox" ng-model="vm.activeData.jargonEnabled">Enable Jargon Analysis</label>
-        </div>
-        <div class="form-group">
-          <label for="jargon">List of words to flag:</label><a data-toggle='modal' data-target="#jargonInfo"><i class="glyphicon glyphicon-info-sign"></i></a>
-          <textarea class="form-control" ng-model="vm.activeData.blackList" rows="5" id="jargon"></textarea>
-        </div>
-    <div class="col-md-6">
-      <h4 ng-if="!vm.creatingNew && vm.activeData.logs"><span class="label label-danger">Recent Activity</span></h4>
-    </div>
-    </div>
-        </div>
-  </div>
-  </div>
-  <div class="panel-footer" style="height:50px;">
-      <div class="btn-group-sm">
-        <div ng-if="!vm.deletedBoards" class="btn btn-default pull-right" style="color:green" ng-click="vm.onClick_saveBoard()">Save</div>
-        <div ng-if="vm.deletedBoards" class="btn btn-success pull-right" ng-click="vm.onClick_reactivateBoard()">Re-Activate</div>
-        <div ng-if="!vm.deletedBoards"class="btn btn-default pull-right" data-toggle="modal" data-target="#confirmModal">Delete</div>
-        <div ng-if="vm.deletedBoards" class="btn btn-default pull-right" style="color:red"data-toggle="modal" data-target="#confirmBoardDelete">Delete</div>
-      </div>
-    </div>
-  </div>
-  </div>
-  </div>
-</div>
-<!-- Trigger the modal with a button -->
-<div id="confirmModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Delete Confirmation</h4>
-      </div>
-      <div class="modal-body">
-        <p ng-if="vm.showUserDetail">Are you sure you want to delete this user?</p>
-        <p ng-if="vm.showBoardDetail">Are you sure you want to de-activate this board?</p>
-        <div class="btn-group-md">
-          <div class=" btn btn-default" data-dismiss="modal">No</div>
-          <div ng-if="vm.showUserDetail" class="btn btn-danger" data-dismiss="modal" ng-click="vm.onClick_deleteUser()">Yes</div>
-          <div ng-if="vm.showBoardDetail" class=" btn btn-danger" data-dismiss="modal" ng-click="vm.onClick_deactivateBoard()">Yes</div>
-        </div>
-        </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-<div id="myModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Manage Boards</h4>
-      </div>
-      <div class="modal-body">
-        <p>Select boards the user can edit</p>
-        <div class="list-group">
-          <a ng-repeat="board in vm.boardsList" class="list-group-item list-group-item-action">{{board.name}} 
-              <button ng-if="vm.checkUserAuthorization(board.$id) > -1" ng-click="vm.onClick_deAuthorizeBoard(board)" type="button" class="btn-group pull-right btn btn-xs" align="right" style="color:red">
-                <i class="glyphicon glyphicon-remove red"/>
-              </button>
-              <button ng-if="vm.checkUserAuthorization(board.$id) == -1" ng-click="vm.onClick_authorizeBoard(board)" type="button" class="btn-group pull-right btn btn-xs" align="right" style="color:green">
-                <i class="glyphicon glyphicon-plus"/>
-              </button>
-        </a>
-        </div>
+            <br />
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-body" style="padding-top:5px;">
+                  <h4>
+                    <span class="label label-info">Basic Info</span>
+                  </h4>
+                  <div class="form-group">
+                  <label for="exampleInputEmail1">Name</label> 
+                  <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Name"
+                  ng-model="vm.activeData.name" /></div>
+                  <div class="form-group">
+                  <label for="exampleInputEmail1">Email</label> 
+                  <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email"
+                  ng-model="vm.activeData.email" /></div>
+                  <div ng-if="vm.creatingNew" class="form-group">
+                  <label for="exampleInputEmail1">Password</label> 
+                  <input type="text" class="form-control" ng-model="vm.activeData.password" /></div>
+                  <div ng-if="!vm.creatingNew" class="form-group">
+                  <label for="exampleInputEmail1">User Key</label> 
+                  <input type="text" class="form-control" id="exampleInputEmail1" ng-model="vm.activeData.$id"
+                  disabled="disabled" /></div>
+                  <div class="form-group">
+                  <label for="profileSelect">Profile Type</label> 
+                  <select id="profileSelect" class="form-control" ng-model="vm.activeData.type">
+                    <option value="admin">Admin</option>
+                    <option value="basic">Basic</option>
+                  </select></div>
+                </div>
               </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-body" style="padding-top:5px">
+                  <h4>
+                    <span class="label label-success">Authorized Boards</span>
+                  </h4>
+                  <br />
+                  <div class="checkbox">
+                    <label>
+                    <input type="checkbox" ng-model="vm.activeData.authorizeForAllBoards" />Authorize User for all Boards</label>
+                  </div>
+                  <div ng-if="!vm.activeData.authorizeForAllBoards">
+                    <div ng-if="vm.activeData.authorizedBoards" class="list-group">
+                      <a ng-repeat="board in vm.activeData.authorizedBoards track by $index"
+                      class="list-group-item list-group-item-action">{{board.name}}</a>
+                    </div>
+                    <div ng-if="!vm.activeData.authorizedBoards || vm.activceData.authorizedBoards == &#39;null&#39;"
+                    class="panel panel-danger">
+                      <div class="panel-body">
+                        <p class="text-center">This user does not currently have any authorized boards.</p>
+                      </div>
+                    </div>
+                    <div class="btn-group-md text-center">
+                      <a class="btn btn-primary" data-toggle="modal" data-target="#myModal">Manage Boards</a>
+                    </div>
+                  </div>
+                  <div ng-if="vm.activeData.authorizeForAllBoards">
+                    <div class="panel panel-success">
+                      <div class="panel-body">
+                        <p class="text-center">This user is currently authorzed to view and edit all boards.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer" style="height:50px;">
+            <div class="btn-group-sm">
+              <div class="btn btn-default pull-right" style="color:green" ng-click="vm.onClick_saveUser()">Save</div>
+            </div>
+            <div class="btn-group-sm">
+              <div class="btn btn-default pull-right" data-toggle="modal" data-target="#confirmModal">Delete</div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-
-  </div>
-</div>
-<div id="jargonInfo" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Jargon Black List Instructions</h4>
-      </div>
-      <div class="modal-body text-center">
-        <p>Please enter the words you would like to flag in a comma seperated format like so:</p>
-        <div class="well well-sm" style="width:30%; margin-left:+200px">Dog, Cat, Tree, Bark</div>
-        Only single words will trigger a flag, phrases will not.
-       
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-<div id="confirmBoardDelete" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div ng-if="!vm.showConfirm" class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Delete Board Confirmation</h4>
-      </div>
-      <div class="modal-body text-center">
-        <div class="alert alert-danger">Are you sure you want to delete this board? This action cannot be undone.</div>
-        <div class="btn-group-md text-center">
-          <button class="btn btn-danger" ng-click="vm.onClick_showConfirm()">Yes</button>
-          <button class="btn btn-default"data-dismiss="modal">No</button>
+      <!--BEGIN BOARD DETAIL PANEL-->
+      <div ng-if="vm.showBoardDetail">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{vm.activeData.name || &#39;[UNTITLED]&#39;}}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="col-md-6" style="float: left">
+              <div class="panel panel-default">
+                <div class="panel-body" style="padding-top:5px">
+                  <h4>
+                    <span class="label label-info">Basic Info</span>
+                  </h4>
+                  <br />
+                  <div class="form-group">
+                  <label for="exampleInputEmail1">Name</label> 
+                  <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Name"
+                  ng-model="vm.activeData.name" /></div>
+                  <div class="form-group">
+                  <label for="exampleInputEmail1">Board Key</label> 
+                  <input type="text" class="form-control" id="exampleInputEmail1" ng-model="vm.activeData.$id"
+                  disabled="disabled" /></div>
+                  <button ng-if="!vm.creatingNew &amp;&amp; !vm.deletedBoards" type="button" ng-click="vm.onClick_openBoard()"
+                  class="btn btn-primary">Go to Board</button>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6" style="float: left">
+              <div class="panel panel-default">
+                <div class="panel-body" style="padding-top:5px">
+                  <h4>
+                    <span class="label label-success">Configurations</span>
+                  </h4>
+                  <br />
+                  <div class="checkbox">
+                    <label>
+                    <input type="checkbox" ng-model="vm.activeData.duplicateEnabled" />Enable Duplicate Analysis</label>
+                  </div>
+                  <div class="checkbox">
+                    <label>
+                    <input type="checkbox" ng-model="vm.activeData.jargonEnabled" />Enable Jargon Analysis</label>
+                  </div>
+                  <div class="form-group">
+                  <label for="jargon">List of words to flag:</label>
+                  <a data-toggle='modal' data-target="#jargonInfo"></a> 
+                  <textarea class="form-control" ng-model="vm.activeData.blackList" rows="5" id="jargon"></textarea></div>
+                  <div class="col-md-6">
+                    <h4 ng-if="!vm.creatingNew &amp;&amp; vm.activeData.logs">
+                      <span class="label label-danger">Recent Activity</span>
+                    </h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-12" style="float: left">
+              <div class="panel panel-default">
+                <div class="panel-body" style="padding-top:5px">
+                  <h4>
+                    <span class="label label-success">Acceptance Statuses</span>
+                  </h4>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Color</th>
+                        <th>Display</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="status in vm.activeData.statuses">
+                        <td><input
+                          class="form-control"
+                          ng-model="status.name"
+                          ng-change="vm.saveStatus(status);">
+                        </td>
+                        <td><input
+                          class="form-control"
+                          ng-model="status.color"
+                          ng-style="{ 'background-color': status.color }"
+                          ng-change="vm.saveStatus(status);">
+                        </td>
+                        <td><input
+                          class="form-control"
+                          type="checkbox"
+                          ng-model="status.display"
+                          ng-change="vm.saveStatus(status);">
+                        </td>
+                      </tr>
+                      <form>
+                        <!--todo allow save and unhide-->
+                        <tr class="info" style="display: none">
+                          <td><input
+                            name="newStatusName"
+                            class="form-control"
+                            type="text"
+                            ng-model="vm.newStatus.name"
+                            placeholder="new status name">
+                          </td>
+                          <td><input
+                            name="newStatusColor"
+                            class="form-control"
+                            type="text"
+                            ng-model="status.color"
+                            ng-style="{ 'background-color': vm.newStatus.color }"
+                            placeholder="new status color">
+                          </td>
+                          <td><input
+                            name="newStatusDisplay"
+                            class="form-control"
+                            type="checkbox"
+                            ng-model="vm.newStatus.display">
+                          </td>
+                        </tr>
+                      </form>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer" style="height:50px;">
+            <div class="btn-group-sm">
+              <div ng-if="!vm.deletedBoards" class="btn btn-default pull-right" style="color:green"
+              ng-click="vm.onClick_saveBoard()">Save</div>
+              <div ng-if="vm.deletedBoards" class="btn btn-success pull-right" ng-click="vm.onClick_reactivateBoard()">
+              Re-Activate</div>
+              <div ng-if="!vm.deletedBoards" class="btn btn-default pull-right" data-toggle="modal" data-target="#confirmModal">
+              Delete</div>
+              <div ng-if="vm.deletedBoards" class="btn btn-default pull-right" style="color:red" data-toggle="modal"
+              data-target="#confirmBoardDelete">Delete</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div ng-if="vm.showConfirm" class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Delete Board Confirmation</h4>
-      </div>
-      <div class="modal-body text-center">
-        <div class="alert alert-danger">Are you sure you want to delete this board? This action cannot be undone.</div>
-        <div class = "well well-sm">{{vm.activeData.$id}}</div>
-        <p>Please enter the unique key of the board you wish to delete as it appears above</p>  
-        <div class="form-group">
-          <input type="text" class="form-control" id="exampleInputEmail1" ng-model="vm.activeData.confirmKey">
-        </div>
-        <p ng-if="vm.showConfirmError"style="color:red">The key you entered did not match the board key</p>
-        <div class="btn-group-md text-center">
-          <button class="btn btn-danger" ng-click="vm.onClick_deleteBoard()" data-dismiss="modal">Submit</button>
-          <button class="btn btn-default"data-dismiss="modal" ng-click="vm.onClick_showConfirm()" >Cancel</button>
+    <!-- Trigger the modal with a button -->
+    <div id="confirmModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <h4 class="modal-title">Delete Confirmation</h4>
+          </div>
+          <div class="modal-body">
+            <p ng-if="vm.showUserDetail">Are you sure you want to delete this user?</p>
+            <p ng-if="vm.showBoardDetail">Are you sure you want to de-activate this board?</p>
+            <div class="btn-group-md">
+              <div class=" btn btn-default" data-dismiss="modal">No</div>
+              <div ng-if="vm.showUserDetail" class="btn btn-danger" data-dismiss="modal" ng-click="vm.onClick_deleteUser()">
+              Yes</div>
+              <div ng-if="vm.showBoardDetail" class=" btn btn-danger" data-dismiss="modal" ng-click="vm.onClick_deactivateBoard()">
+              Yes</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
+    <div id="myModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <h4 class="modal-title">Manage Boards</h4>
+          </div>
+          <div class="modal-body">
+            <p>Select boards the user can edit</p>
+            <div class="list-group">
+              <a ng-repeat="board in vm.boardsList" class="list-group-item list-group-item-action">{{board.name}} </a>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="jargonInfo" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <h4 class="modal-title">Jargon Black List Instructions</h4>
+          </div>
+          <div class="modal-body text-center">
+          <p>Please enter the words you would like to flag in a comma seperated format like so:</p>
+          <div class="well well-sm" style="width:30%; margin-left:+200px">Dog, Cat, Tree, Bark</div>Only single words will trigger
+          a flag, phrases will not.</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="confirmBoardDelete" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div ng-if="!vm.showConfirm" class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <h4 class="modal-title">Delete Board Confirmation</h4>
+          </div>
+          <div class="modal-body text-center">
+            <div class="alert alert-danger">Are you sure you want to delete this board? This action cannot be undone.</div>
+            <div class="btn-group-md text-center">
+            <button class="btn btn-danger" ng-click="vm.onClick_showConfirm()">Yes</button> 
+            <button class="btn btn-default" data-dismiss="modal">No</button></div>
+          </div>
+        </div>
+        <div ng-if="vm.showConfirm" class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <h4 class="modal-title">Delete Board Confirmation</h4>
+          </div>
+          <div class="modal-body text-center">
+            <div class="alert alert-danger">Are you sure you want to delete this board? This action cannot be undone.</div>
+            <div class="well well-sm">{{vm.activeData.$id}}</div>
+            <p>Please enter the unique key of the board you wish to delete as it appears above</p>
+            <div class="form-group">
+              <input type="text" class="form-control" id="exampleInputEmail1" ng-model="vm.activeData.confirmKey" />
+            </div>
+            <p ng-if="vm.showConfirmError" style="color:red">The key you entered did not match the board key</p>
+            <div class="btn-group-md text-center">
+            <button class="btn btn-danger" ng-click="vm.onClick_deleteBoard()" data-dismiss="modal">Submit</button> 
+            <button class="btn btn-default" data-dismiss="modal" ng-click="vm.onClick_showConfirm()">Cancel</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
