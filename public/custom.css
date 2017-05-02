@@ -130,6 +130,10 @@ div.badge.flag-duplicate {
 div.badge.flag-jargon {
     background-color: #4aa;
 }
+div.badge.flag-manual {
+	background color: a4a;
+}
+
 div.notecard div.drop-zone-notecard {
     z-index: 0;
     position:absolute;

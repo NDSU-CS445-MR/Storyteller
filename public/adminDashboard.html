@@ -170,6 +170,7 @@
          </div>
          <div class="panel-footer" style="height:50px;">
             <div class="btn-group-sm">
+			   <div ng-if="!vm.creatingNew" type="button" ng-click="vm.onClick_exportToCSV()" class="btn btn-primary pull-left">Export Board to CSV</div>
                <div ng-if="!vm.deletedBoards" class="btn btn-default pull-right" style="color:green" ng-click="vm.onClick_saveBoard()">Save</div>
                <div ng-if="vm.deletedBoards" class="btn btn-success pull-right" ng-click="vm.onClick_reactivateBoard()">Re-Activate</div>
                <div ng-if="!vm.deletedBoards"class="btn btn-default pull-right" data-toggle="modal" data-target="#confirmModal">Delete</div>

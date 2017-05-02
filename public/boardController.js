@@ -16,9 +16,12 @@ function boardController (
   ) {
     // vm is View Model (MVVM)
     var vm = this;
+    vm.manualFlagDescription;
+    vm.showManualFlag=false;
     
     vm.boardKey = firebaseConnection.sessionStore.currentBoardKey;
     vm.board = firebaseConnection.getBoardByKey(vm.boardKey);
+    console.log("CONGRATS, YOU HAVE LOADED INTO " + vm.boardKey);
     
     /* fill in the name of board in the navbar */
     vm.boardName = $firebaseObject(vm.board.child('name'));
@@ -308,8 +311,15 @@ function boardController (
         story: {},
         name: '',
         body: '',
+        manualFlags: {},
         bindToStoryById: function(story){
             vm.activeStory.story = story;
+            this.manualFlags = $firebaseArray(
+                vm.storiesRef
+                    .child(story.$id)
+                    .child('analysisLog')
+                    .child('manual')
+                );
         },
         onNameChange: function() {
             story.name = vm.activeStory.story.name;
@@ -431,8 +441,29 @@ function boardController (
         }
     }
        
-    
-    
+       vm.onclick_flagStory = function(story) {
+        vm.storiesRef.child(story.$id).child('analysisLog').child('manual').push(vm.manualFlagDescription);
+        vm.showManualFlag=false;
+       }
+       
+       vm.toggleManualDescription=function()
+       {
+           vm.showManualFlag=true;
+       }
+       
+    vm.onclick_deleteFlag = function(flag)
+    {
+        console.log("LOOK, with your EYES HERE.");
+        console.log(flag);
+
+        vm.storiesRef
+            .child(vm.activeStory.story.$id)
+            .child('analysisLog')
+            .child('manual')
+            .child(flag.$id)
+            .remove();
+    } 
+
     function flagBoardForAnalysis() {
         vm.board.child('edited').child('duplicate').set(true);
         vm.board.child('edited').child('jargon').set(true);
@@ -441,6 +472,7 @@ function boardController (
     vm.onDoubleClick = function(story) {
         vm.activeStory.bindToStoryById(story);
         vm.activeStory.startEditing();
+        vm.showManualFlag= false;
         
     }
     

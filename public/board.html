@@ -17,7 +17,7 @@
 </div>
 <!-- detailed story view, hidden by default -->
 <div id="active_story_screen" class="modal modal_story">
-    <div id="active_story" class="modal notecard notecard_detailed">
+    <div ng-if="!vm.showManualFlag" id="active_story" class="modal notecard notecard_detailed">
         <div class="userstory_key">
             <textarea id="editTitle" type="text" ng-model="vm.activeStory.story.name" ng-change="vm.storyTitleChanged(vm.activeStory.story)" placeholder="user story name"></textarea>
         </div>
@@ -27,14 +27,35 @@
         </div>
 
         <div class="bottom_margin">
-		       <div class="badge flag flag-duplicate" ng-if="vm.activeStory.story.analysisLog.duplicates != null">
+        <div class="badge flag flag-manual" 
+            ng-if="vm.activeStory.story.analysisLog.manual != null"
+            ng-repeat="flag in vm.activeStory.manualFlags" >
+            {{flag.$value}} 
+            <span class="glyphicon glyphicon-remove"
+                ng-click="vm.onclick_deleteFlag(flag)"> </span>
+        </div>
+               <div class="badge flag flag-duplicate" ng-if="vm.activeStory.story.analysisLog.duplicates != null">
                         possible duplicate
-                    </div>
+               </div>
                     <div class="badge flag flag-jargon" ng-if="vm.activeStory.story.analysisLog.jargon != null">
                         possible jargon
                     </div>
+                    
             <button class="cancel btn btn-default" type= "button" ng-click="vm.activeStory.stopEditing();">Exit</button>
+            <button class="btn btn-default" type= "button" ng-click="vm.toggleManualDescription()">Manual Flag</button>
         </div>
+    </div>
+    <div ng-if="vm.showManualFlag" class="modal notecard notecard_detailed"> 
+    <div class="userstory_key"> </div>
+    <div class="story_body">
+    <textarea id="flagContent" placeholder="Enter manual flag description" ng-model="vm.manualFlagDescription" type="text"> </textarea>
+    </div>
+
+    <div class="bottom_margin">
+            <button class="cancel btn btn-default" type= "button" ng-click="vm.activeStory.stopEditing();">Exit</button>
+            <button class="btn btn-default" type= "button" ng-click="vm.onclick_flagStory(vm.activeStory.story)">Save Manual Flag</button>
+        </div>
+    
     </div>
     <div id="active_story_cancel_margin" class="cancel_modal" ng-click="vm.activeStory.stopEditing();"></div>
 </div>
@@ -73,6 +94,7 @@
     <div id="cancel_category_modal" class="cancel_modal" ng-click="vm.newCategory.close();"></div>
 </div>
 
+
 <div class="boardWrapper">
 <div class='liveStatusWrapper'>
     <div ng-include="'./public/navbar.html'" onload="vm.injectNav();"></div>
@@ -83,13 +105,20 @@
                 <div id="{{story.$id}}" ng-dblclick="vm.onDoubleClick(story)" class="notecard notecard_brief drag">
                     <div class="userstory_key">
                         <textarea class="userstory_name" type="text" ng-change="vm.storyTitleChanged(story);" ng-model="story.name"></textarea>
+
+
                     </div>
+                    
+                        
                     <div class="notecard_bottom_margin">
                         <div class="badge flag flag-duplicate" ng-if="story.analysisLog.duplicates != null">
                             duplicate
                         </div>
                         <div class="badge flag flag-jargon" ng-if="story.analysisLog.jargon != null">
                             jargon
+                        </div>
+                        <div class="badge flag flag-manual" ng-if="story.analysisLog.manual != null">
+                            manual flag(s)
                         </div>
                     </div>
                 </div>

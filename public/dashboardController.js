@@ -192,6 +192,7 @@ angular.module('app').component('dashboard',{
 		//Navigates to the selected board
 		vm.onClick_openBoard = function(){
 			firebaseConnection.sessionStore.currentBoardKey = vm.activeData.$id || vm.activeData.key;
+			console.log("headed to " + firebaseConnection.sessionStore.currentBoardKey );
 			$location.path('/board');
 		}
 		//Used to filter the user's authorized boards in their profile section
@@ -215,6 +216,39 @@ angular.module('app').component('dashboard',{
 			vm.deletedBoards = false;
 			vm.showBoardDetail = false;
 		}
+		vm.onClick_exportToCSV = function() {
+		console.log('DELETE ME');
+		firebaseConnection.getStories(vm.activeData.$id).then(function(res){
+			var snap = res;
+        var csvData = Array();
+
+        //Push column headers
+        csvData.push('"Name","Body","Status"');
+        //Parse through each story
+        snap.forEach(function(elm){
+            var story = elm.val();
+            //Create new line with name, body, and status as elements
+            csvData.push('"'
+                +story.name+'","'
+                +story.body+'","'
+                +story.status+'"');
+        });
+        //just testing
+        console.log(csvData);
+        //remove newlines, at this point it is in a csv format
+        var csv = csvData.join("\n");
+
+        //Test csv by downloading through the browser
+        var fileName = ("Test.csv");                   
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csv));
+        element.setAttribute('download', fileName);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+		});
+	}
 		function resetActiveDataUser(){
 			vm.backupData = {}
 			vm.activeData = {

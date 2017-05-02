@@ -232,6 +232,13 @@ function createFirebaseConnection($q,sessionStore){
         return fb_reference
             .child('boards').orderByChild('active').equalTo(true);
     }
+	firebaseConnection.getStories = function(boardId){
+		var deferred = $q.defer()
+		fb_reference.child('boards').child(boardId).child('stories').once('value',function(snap){
+			deferred.resolve(snap);
+		});
+		return deferred.promise;
+	}
     firebaseConnection.getInactiveBoards = function(){
         return fb_reference
             .child('boards').orderByChild('active').equalTo(false);
