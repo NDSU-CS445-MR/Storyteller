@@ -148,11 +148,16 @@ angular.module('app').component('dashboard',{
 			resetActiveDataBoard();
 		}
 		vm.onClick_deactivateBoard = function(){
-			firebaseConnection.deactivateBoard(vm.activeData);
+			firebaseConnection.deactivateBoard(vm.activeData.$id);
 			vm.showBoardDetail = false;
 			$('#confirmModal').modal('hide');
 
 			window.setTimeout(hideDetail(),1000);
+		}
+		vm.onClick_reactivateBoard = function(){
+			firebaseConnection.reactivateBoard(vm.activeData.$id);
+			resetActiveDataBoard();
+			vm.showBoardDetail = false;
 		}
 		vm.onClick_deleteBoard = function(){
 			if(vm.activeData.confirmKey == vm.activeData.$id){
