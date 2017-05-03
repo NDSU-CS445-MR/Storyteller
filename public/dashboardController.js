@@ -360,26 +360,35 @@ angular.module('app').component('dashboard',{
               display: vm.newStatus.display,
               allow_before: true
             },
-            function() { vm.statusEngine.enableOrdering($('#' + newRef.key)); });
-            vm.newStatus.name = '';
-            vm.newStatus.color = '#FFFFFF';
-            vm.newStatus.display = true;
+            function(ref) { 
+              $timeout(()=>{
+                $('#' + ref.key).droppable({
+                    drop: vm.statusEngine.statusDropOnOtherStatus
+                });
+                $('#' + ref.key).draggable({
+                    revert: true
+                });
+              });
+            });
           });
+          vm.newStatus.name = '';
+          vm.newStatus.color = '#FFFFFF';
+          vm.newStatus.display = true;
       }
     }
     vm.statusEngine = {
       statusesReady: function() {
-          vm.statusEngine.enableOrdering($('.status-edit'));
-      },
-      enableOrdering: function(q) {
         $timeout(()=>{
-          q.droppable({
+          $('.status-edit').droppable({
               drop: vm.statusEngine.statusDropOnOtherStatus
           });
-          q.draggable({
+          $('.status-edit').draggable({
               revert: true
           });
         });
+      },
+      enableOrdering: function(q) {
+        
       },
       statusDropOnOtherStatus: function(event, ui){
         var dropOnKey = $(this).attr("id");

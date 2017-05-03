@@ -169,7 +169,7 @@ function createFirebaseConnection($q,sessionStore){
     /* board methods */
     
     firebaseConnection.createStatus = function createStatus(boardRef, statusObj, cb) {
-        boardRef
+        var ref = boardRef
             .child('statuses')
             .push({
                 name: statusObj.name || 'unnamed',
@@ -179,7 +179,7 @@ function createFirebaseConnection($q,sessionStore){
                 display: statusObj.display,
                 allow_before: statusObj.allow_before
             })
-            .then(cb);
+        ref.then(function(){cb(ref);});
     }
     
     firebaseConnection.shiftStatusOrdersIfConflict = function shiftStatusOrders(boardRef, greaterThan, cb) {
