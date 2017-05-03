@@ -8,9 +8,9 @@ function createFirebaseConnection($q,sessionStore){
     var fb_reference = firebase.database().ref();
     var fb_auth = firebase.auth();
     var firebaseConnection = {};
-    
+    if(demo){
     firebaseConnection.sessionStore = {
-        currentBoardKey: 'i dont know how to make a normal key',
+        currentBoardKey: '-Kibv581Q_giCS_NhjqP',
         currentUser: {
             id: '-KiCr5cFW5EW2kFbVG1f',
             email: null,
@@ -18,6 +18,18 @@ function createFirebaseConnection($q,sessionStore){
             type: 'admin'
             }
     };
+    }
+    else{
+        firebaseConnection.sessionStore = {
+        currentBoardKey: null,
+        currentUser: {
+            id: null,
+            email: null,
+            loggedIn: false,
+            type: null
+            }
+    };
+    }
     firebaseConnection.register = function(newUser){
         var deferred = $q.defer();
         //Adds an authorized user to the firebase authentication service

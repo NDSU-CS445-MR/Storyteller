@@ -6,7 +6,7 @@ var fb_config = {
     messagingSenderId: '963004166071'
 };
 //END FIREBASE CONFIGURATION OBJECT
-
+var demo = true;
 module.exports = {
 fb_configRef: function(){
     return fb_config;

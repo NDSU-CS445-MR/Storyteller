@@ -3,7 +3,12 @@ angular.module('app').component('dashboard',{
 	controllerAs: 'vm',
 	controller: function(firebaseConnection,$firebaseArray,$location,$timeout,$cookies){
 		var vm = this;
-		vm.currentUser = $cookies.getObject('sessionData');
+		if(demo){
+			vm.currentUser = firebaseConnection.sessionStore.currentUser;
+		}
+		else{
+			vm.currentUser = $cookies.getObject('sessionData');
+		}
 		vm.isAdmin = vm.currentUser.type === 'admin';
 		vm.currentUserKey = vm.currentUser.key;
 		vm.location = "Admin Dashboard"
