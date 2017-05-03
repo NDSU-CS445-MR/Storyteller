@@ -92,7 +92,7 @@ var findDuplicates = function(storyCheck) {
   var updatedLog = [];
  storiesCache.forEach(function(comparedStory)
 	{
-		if(storyCheck.id != comparedStory.id && storyCheck.data.status == comparedStory.data.status){
+		if(storyCheck.id != comparedStory.id){
 		var counter = 0; //increments for each duplicate 
 
 		var comparedStoryBody = comparedStory.data.body;
@@ -122,11 +122,12 @@ var findDuplicates = function(storyCheck) {
 			}
 		}
 		if(counter != 1 && storyArray.length != 1){
-			var potentialThreshold = 60; //change this to adjust detection sensativity (Higher = less sensative)
+			var potentialThreshold = 70; //change this to adjust detection sensativity (Higher = less sensative)
 			var strongThreshold = 85;//change this to adjust the detection sensativity (Higher = less sensative)
 			if (counter /(storyArray.length) *100 >= strongThreshold ) //Strong duplicate calculation
 			{				
 				//create new log object to show details in duplicate detection	
+				//console.log("\nStrong duplicate detected: ",comparedStory.id, storyCheck.id, "\nWith: ", storyCheckBody,comparedStoryBody,"\n\n");
 				var newLog = {
 					story: comparedStory.id,
 					details: 'strong duplicate detected',
@@ -135,6 +136,7 @@ var findDuplicates = function(storyCheck) {
 			}
 			else if (counter /(storyArray.length) *100 >= potentialThreshold) //Potential duplicate calculation
 			{
+				//console.log("\nPossible duplicate detected: ",comparedStory.id, storyCheck.id, "\nWith: ", storyCheckBody,comparedStoryBody,"\n\n");
 				var newLog = {
 					story: comparedStory.id,
 					details: 'possible duplicate detected',
