@@ -1,0 +1,8 @@
+<div>
+  <!--Navbar-->
+ <div ng-include="'./public/navbar.html'"></div>
+ <!--ADMIN DASHBOARD REFERENCE-->
+ <div ng-if="vm.isAdmin" ng-include="'./public/adminDashboard.html'"></div>
+ <!--BASIC USER DASHBOARD REFERENCE-->
+ <div ng-if="!vm.isAdmin" ng-include="'./public/basicDashboard.html'"></div> 
+</div>

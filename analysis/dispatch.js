@@ -1,6 +1,6 @@
 var firebase = require('firebase');
 var child_process = require('child_process');
-var config = require('./../config.json');
+var config = require('../public/fb-config.js').fb_configRef();
 
 var flags = {
   isJargonActive: false,
@@ -9,36 +9,54 @@ var flags = {
 var initializeMessage;
 var storiesCache = [];
 
-var interpretMessageFromChild = function(flag,message){
-    switch(message){
-      case 'starting analysis':{
-        flags[flag] = true;
-        console.log(flags.isJargonActive);
-      }
-      case 'analysis complete':{
-        flags[flag] = false;
-      }
+var analysisManager = function(){
+  firebase.initializeApp(config)
+  var boardRef = firebase.database().ref().child('boards');
+  boardRef = boardRef.child(initializeMessage.data);
+  var duplicateAnalysis = {};
+  var jargonAnalysis = {};
+
+  //Watch for change in Duplicate analysis configuration and react accordingly
+  boardRef.child('duplicateEnabled').on('value',function(snap){
+    if(snap.val() && !flags.isDuplicateActive){
+        duplicateAnalysis = child_process.fork('./analysis/duplicates');
+        duplicateAnalysis.send(initializeMessage);
+        flags.isDuplicateActive = true;
     }
-  };
-
-var spawnAnalysis = function(){
-  if(config.analysisEnabled){
-  var duplicateAnalysis = child_process.fork('./analysis/duplicates');
-  var jargonAnalysis = child_process.fork('./analysis/jargon');
-  
-  duplicateAnalysis.send(initializeMessage);
-  jargonAnalysis.send(initializeMessage);
-  
-  duplicateAnalysis.on('message',function(message){
-    console.log(message);
-    interpretMessageFromChild('isDuplicateActive',message)
+    if(!snap.val() && flags.isDuplicateActive){
+      //Termintates child process
+      duplicateAnalysis.kill('SIGINT');
+      flags.isDuplicateActive = false;
+    }
   });
-  jargonAnalysis.on('message',function(message){
-    interpretMessageFromChild('isJargonActive',message)
+  
+  //Watch for change in Jargon analysis configuration and react accordingly
+   boardRef.child('jargonEnabled').on('value',function(snap){
+    if(snap.val() && !flags.isJargonActive){
+        jargonAnalysis = child_process.fork('./analysis/jargon');
+        jargonAnalysis.send(initializeMessage);
+        flags.isJargonActive = true;
+    }
+    if(!snap.val() && flags.isJargonActive){
+      //Terminate child process
+      jargonAnalysis.kill('SIGINT');
+      flags.isJargonActive = false;
+    }
+  });
+  //Watch for change in board active state and react accordingly
+  boardRef.child('active').on('value',function(snap){
+    if(!snap.val()){
+      if(flags.isDuplicateActive){
+        duplicateAnalysis.kill('SIGINT');
+      }
+      if(flags.isJargonActive){
+      jargonAnalysis.kill('SIGINT');
+    }
+    }
   });
 }
-}
 
+//Interprets message from parent and starts analysis child management for the board
 process.on('message', function(message) {
   console.log('[DISPATCH] received message from server:', message);
   switch(message.head){
@@ -47,35 +65,7 @@ process.on('message', function(message) {
         head: 'initialize',
         data: message.data
       };
-      spawnAnalysis()
-        
+      analysisManager()
     }
   }
 });
-
-
-
-// ***Please leave this, I many need it in the future to support multiple boards. <3 Scott***
-
-  //var syncTasks = function(boardsList){
-  //   var tasksToSpawn;
-  //   var tasksToKill;
-  //   var compositeList = boardsList;
-  //   activeBoards.forEach(function(board){
-  //     if(!compositeList.filter(containsBoard(board.id)){
-  //       compositeList.push(board.id);
-  //     }
-  //   });
-  //   compositeList.forEach(function(board){
-  //     if(!activeBoards.indexOf(board) && boardsList.indexOf()){
-        
-  //     }
-  //   });
-  // }
-  // var containsBoard = function(boardId,)
-  // {
-
-  // }
-  
-
-// child.js

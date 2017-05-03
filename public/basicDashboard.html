@@ -1,0 +1,109 @@
+<div class=" row col-md-3">
+   <div class="col-md-1 side-nav">
+      <div class="side-menu">
+         <nav class="navbar navbar-default" role="navigation">
+            <div class="navbar-header">
+            </div>
+            <!-- Side menu -->
+            <div class="side-menu-container">
+               <br>
+               <ul class="nav navbar-nav">
+                  <li ng-class="{active : vm.showBoardBlade}"><a ng-click="vm.onClick_selectBlade('boards')"><span class="glyphicon glyphicon-th-large"></span></a></li>
+                  <li ng-class="{active : vm.showConfigBlade}"><a ng-click="vm.onClick_selectBlade('config')"><span class="glyphicon glyphicon-cog"></span></a></li>
+               </ul>
+            </div>
+         </nav>
+      </div>
+   </div>
+   <div class="col-md-6" style="position:fixed">
+      <div ng-if="vm.showBoardBlade || vm.showUserBlade" class="side-menu-secondary">
+         <div class="input-group"style="width:100%;"><input type="text" class="form-control" style="height:50px;" placeholder="Search"/></div>
+         <br>
+         <br>
+         <nav ng-if="vm.currentUser.authorizedBoards" class="navbar navbar-default" role="navigation">
+            <div class="side-menu-container">
+               <ul class="nav navbar-nav">
+                  <li ng-if="vm.showBoardBlade"ng-repeat="board in vm.boards" ng-class="{active : vm.activeData.key === board.key}"><a ng-click="vm.onClick_viewChild('board',board)">{{board.name}}</a></li>
+               </ul>
+            </div>
+         </nav>
+      </div>
+   </div>
+</div>
+<!--Begin User Detail Board-->
+<div class="col-md-3 detail-body" >
+   <div ng-if="vm.showUserDetail || vm.showUserConfig">
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h3 class="panel-title">{{vm.backupData.name || vm.activeData.name}}</h3>
+         </div>
+         <div class="panel-body">
+            <br>
+            <div class="col-md-12">
+               <div class="panel panel-default">
+                  <div class="panel-body"style="padding-top:5px;">
+                     <h4><span class="label label-info" >Basic Info</span></h4>
+                     <div class="form-group">
+                        <label for="exampleInputEmail1">Name</label>
+                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Name" ng-model="vm.activeData.name">
+                     </div>
+                     <div class="form-group">
+                        <label for="exampleInputEmail1">Email</label>
+                        <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email" ng-model="vm.activeData.email">
+                     </div>
+                     <div ng-if="vm.creatingNew"class="form-group">
+                        <label for="exampleInputEmail1">Password</label>
+                        <input type="text" class="form-control"  ng-model="vm.activeData.password">
+                     </div>
+                     <div ng-if="!vm.creatingNew" class="form-group">
+                        <label for="exampleInputEmail1">User Key</label>
+                        <input type="text" class="form-control" id="exampleInputEmail1" ng-model="vm.currentUser.key" disabled>
+                     </div>
+                     <div class="form-group">
+                        <label for="profileSelect">Profile Type</label>
+                        <input type="text" class="form-control" id="exampleInputEmail1" ng-model="vm.currentUser.type" disabled>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="panel-footer" style="height:50px;">
+            <div class="btn-group-sm">
+               <div class="btn btn-default pull-right" style="color:green"ng-click="vm.onClick_saveUser()">Save</div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!--BEGIN BOARD DETAIL PANEL-->
+   <div ng-if="vm.showBoardDetail">
+      <div class="panel panel-default">
+         <div class="panel-heading">
+            <h3 class="panel-title">{{vm.activeData.name || '[UNTITLED]'}}</h3>
+         </div>
+         <div  class="panel-body" >
+            <div class="col-md-12">
+               <div class="panel panel-default">
+                  <div class="panel-body" style="padding-top:5px">
+                     <h4><span class="label label-info">Basic Info</span></h4>
+                     <br>
+                     <div class="form-group">
+                        <label for="exampleInputEmail1">Name</label>
+                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Name" ng-model="vm.activeData.name">
+                     </div>
+                     <div class="form-group">
+                        <label for="exampleInputEmail1">Board Key</label>
+                        <input type="text" class="form-control" id="exampleInputEmail1" ng-model="vm.activeData.key" disabled>
+                     </div>
+                     <button ng-if="!vm.creatingNew" type="button" ng-click="vm.onClick_openBoard()" class="btn btn-primary">Go to Board</button>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="panel-footer" style="height:50px;">
+         </div>
+      </div>
+   </div>
+</div>
+</div>
+</div>
+</div>
