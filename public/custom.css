@@ -226,8 +226,12 @@ div.notecard_detailed div.bottom_margin{
     bottom: 0; right: 0;
 }
 div.notecard_detailed div.bottom_margin button{
-    height: 100%;
-    float: right;
+  height: 100%;
+  margin-left: 4px;
+}
+div.notecard_detailed div.bottom_margin div.badge {
+  font-size: 2rem;
+  padding: 4px;
 }
 div.notecard_detailed button.save, div.notecard_detailed button.cancel {
 }

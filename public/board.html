@@ -39,8 +39,8 @@
       <div class="badge flag flag-jargon" ng-if="vm.activeStory.story.analysisLog.jargon != null">
         possible jargon
       </div>
-      <button class="cancel btn btn-default" type= "button" ng-click="vm.activeStory.stopEditing();">Exit</button>
-      <button class="btn btn-default" type= "button" ng-click="vm.toggleManualDescription()">Manual Flag</button>
+      <button class="cancel btn btn-default pull-right" type= "button" ng-click="vm.activeStory.stopEditing();">Exit</button>
+      <button class="btn btn-default pull-right" type= "button" ng-click="vm.toggleManualDescription()">Manual Flag</button>
     </div>
   </div>
   <div ng-if="vm.showManualFlag" class="modal notecard notecard_detailed"> 
@@ -48,8 +48,8 @@
       <textarea id="flagContent" placeholder="Enter manual flag description" ng-model="vm.manualFlagDescription" type="text"> </textarea>
     </div>
     <div class="bottom_margin">
-      <button class="cancel btn btn-default" type= "button" ng-click="vm.activeStory.stopEditing();">Exit</button>
-      <button class="btn btn-default" type= "button" ng-click="vm.onclick_flagStory(vm.activeStory.story)">Save Manual Flag</button>
+      <button class="cancel btn btn-default pull-right" type= "button" ng-click="vm.activeStory.stopEditing();">Exit</button>
+      <button class="btn btn-default pull-right" type= "button" ng-click="vm.onclick_flagStory(vm.activeStory.story)">Save Manual Flag</button>
     </div>
   </div>
   <div class="bottom_margin">
