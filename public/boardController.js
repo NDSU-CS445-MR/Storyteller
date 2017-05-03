@@ -16,9 +16,12 @@ function boardController (
   ) {
     // vm is View Model (MVVM)
     var vm = this;
+    vm.manualFlagDescription;
+    vm.showManualFlag=false;
     
     vm.boardKey = firebaseConnection.sessionStore.currentBoardKey;
     vm.board = firebaseConnection.getBoardByKey(vm.boardKey);
+    console.log("CONGRATS, YOU HAVE LOADED INTO " + vm.boardKey);
     
     /* fill in the name of board in the navbar */
     vm.boardName = $firebaseObject(vm.board.child('name'));
@@ -45,7 +48,7 @@ function boardController (
         
         /* inject new category button to navbar */
         var injected_nav_item_category = $("<li><a>New Category</a></li>");
-        injected_nav_item_category.attr('ng-click', 'vm.activateNewCategory();');
+        injected_nav_item_category.attr('ng-click', 'vm.newCategory.open();');
         target.append(injected_nav_item_category);
         
         /* inject undo button to navbar */
@@ -57,6 +60,8 @@ function boardController (
 		var injected_nav_item_filterButton = $("<li><a>Filter by Role:</a></li>");
 		
 		target.append(injected_nav_item_filterButton);
+        
+        
         
         $compile(target)($scope);
     };
@@ -122,11 +127,33 @@ function boardController (
             else
                 intent();
         },
-        addStatus: function(name, order, color) {
-            vm.statusEngine.statuses.$add({
-                name,
-                order,
-            });
+        addStatus: function(name, before, color) {
+            var order = before.order;
+            vm.statusEngine
+                .statusesRef
+                .orderByChild('order')
+                .startAt(order)
+                .once('value', function(snapshot_statuses) {
+                    var remaining = snapshot_statuses.numChildren();
+                    snapshot_statuses.forEach(function(snapshot_status) {
+                        vm.statusEngine
+                            .statusesRef
+                            .child(snapshot_status.key)
+                            .update({
+                                order: snapshot_status.child('order').val() + 1
+                            });
+                        if (--remaining == 0) {
+                            var key = vm.statusEngine.statuses.$add({
+                                name: name,
+                                order: order,
+                                color: color,
+                                deletable: true,
+                                display: true,
+                                allow_before: true
+                            });
+                        }
+                    });
+                });
         },
         removeStatus: function(name) {
             // migrate user stories
@@ -140,7 +167,6 @@ function boardController (
         },
         events: {
             fbStatusesReady: function() {
-                var colors = ['#FAA', '#FFA', '#FAF', '#AFA', '#AFF', '#AAF']
                 // applies droppable functionality to any UI element with the class "drop-zone"
                 $timeout(()=>{
                     $( ".drop-zone" ).droppable({
@@ -178,10 +204,12 @@ function boardController (
                     .endAt(story.status + '_999_999')
                     .limitToLast(1)
                     .once('child_added', function(snap_last) {
-                        if (snap_last.col < vm.numColumns.$value)
-                            vm.gridEngine.setAttributes(story, snap_list.row, snap_list.col + 1, cb);
+                        var row = snap_last.child('row').val();
+                        var col = snap_last.child('col').val();
+                        if (col < vm.numColumns.$value)
+                            vm.gridEngine.setAttributes(story, row, col + 1, cb);
                         else
-                            vm.gridEngine.setAttributes(story, snap_list.row + 1, 1, cb);
+                            vm.gridEngine.setAttributes(story, row + 1, 1, cb);
                     });
             // else, find the correct grid position to put the story
             } else {
@@ -198,19 +226,43 @@ function boardController (
                 // console.log('detected row ' + row + ' col ' + col);
                 
                 // todo check for conflict
-                
-                vm.gridEngine.setAttributes(story, row, col, cb);
+                var index = story.status + "_"
+                      + vm.gridEngine.padPosition(row) + "_"
+                      + vm.gridEngine.padPosition(col);
+                vm.storyEngine.storiesRef
+                    .orderByChild('status_row_col_index')
+                    .startAt(index)
+                    .endAt(index)
+                    .limitToLast(1)
+                    .once('value', function(snapshot) {
+                        if (snapshot.numChildren() > 0) {
+                            // conflict, don't move the story to the new position
+                            // if the story doesn't have a position, we need to find a place for it
+                            if (story.status_row_col_index == null) {
+                                // recursive call but don't pass the offset, so that the story gets appended
+                                  // to this status
+                                vm.gridEngine.onStoryAdd(story, null, cb);
+                            }
+                        }
+                        else {
+                            // no conflict, move the story
+                            vm.gridEngine.setAttributes(story, row, col, cb);
+                        }
+                    });
             }
             
         },
-        setAttributes: function(story, row, col, cb) {
+        padPosition(pos) {
             var padding = "000";
+            return (padding + pos).substring(pos.toString().length)
+        },
+        setAttributes: function(story, row, col, cb) {
             story.row = row;
             story.col = col;
             story.status_row_col_index =
                 story.status + '_'
-              + (padding + row).substring(row.toString().length) + "_"
-              + (padding + col).substring( col.toString().length);
+              + vm.gridEngine.padPosition(row) + "_"
+              + vm.gridEngine.padPosition(col);
             story.$save().then(cb);
         },
     }
@@ -230,7 +282,7 @@ function boardController (
             // get the corresponding firebase object for the dropped user story
             vm.storyEngine.getStoryById(storyId, function(story) {
                 vm.statusEngine.removeStoryFromStatus(story, function() {
-                    if (status == 'discarded') {
+                    if (status == $('div.discard-drop-zone div.drop-zone-header h1').text()) {
                         vm.statusEngine.discardStory(story, function() {});
                     } else {
                         vm.statusEngine.addStoryToStatus(
@@ -268,8 +320,15 @@ function boardController (
         story: {},
         name: '',
         body: '',
+        manualFlags: {},
         bindToStoryById: function(story){
             vm.activeStory.story = story;
+            this.manualFlags = $firebaseArray(
+                vm.storiesRef
+                    .child(story.$id)
+                    .child('analysisLog')
+                    .child('manual')
+                );
         },
         onNameChange: function() {
             story.name = vm.activeStory.story.name;
@@ -436,7 +495,15 @@ function boardController (
             } else {
                 
                 
+<<<<<<< HEAD
                 var textArea = $("#" + story.$id).find("textarea.story_body_textarea");
+=======
+            var vm_story = $firebaseObject(vm.board.child('stories').child(story.$id).child('body'));
+            
+            vm_story.$loaded().then(function snapshotLoaded() {
+                var snapshot = vm_story.$value;
+                var textArea = $('#active_story_screen div.story_body textarea');
+>>>>>>> 0778ce49d14e9592880c9b57ead625bb3a0f78c9
                 var selectStart = textArea.prop('selectionStart');
                 if (story.body.length > vm_story.body.length) { // user inserted character to break formatting
                     selectStart -= 1;
@@ -450,8 +517,29 @@ function boardController (
         });
     }
        
-    
-    
+       vm.onclick_flagStory = function(story) {
+        vm.storiesRef.child(story.$id).child('analysisLog').child('manual').push(vm.manualFlagDescription);
+        vm.showManualFlag=false;
+       }
+       
+       vm.toggleManualDescription=function()
+       {
+           vm.showManualFlag=true;
+       }
+       
+    vm.onclick_deleteFlag = function(flag)
+    {
+        console.log("LOOK, with your EYES HERE.");
+        console.log(flag);
+
+        vm.storiesRef
+            .child(vm.activeStory.story.$id)
+            .child('analysisLog')
+            .child('manual')
+            .child(flag.$id)
+            .remove();
+    } 
+
     function flagBoardForAnalysis() {
         vm.board.child('edited').child('duplicate').set(true);
         vm.board.child('edited').child('jargon').set(true);
@@ -460,6 +548,7 @@ function boardController (
     vm.onDoubleClick = function(story) {
         vm.activeStory.bindToStoryById(story);
         vm.activeStory.startEditing();
+        vm.showManualFlag= false;
         
     }
     
@@ -474,8 +563,41 @@ function boardController (
         });
     }    
     
-    vm.activateNewCategory = function activateNewCategory() {
-        console.error("not implemented");
+    vm.newCategory = {
+        inputName: null,
+        selectedBefore: null,
+        available: null,
+        color: null,
+        initialize: function() {
+            var availableRef = vm.statusEngine
+                .statusesRef
+                .orderByChild('allow_before')
+                .equalTo(true);
+            vm.newCategory.available = $firebaseArray(availableRef);
+        },
+        open: function activateNewCategory() {
+            vm.newCategory.inputName = '';
+            vm.newCategory.color = '#FFFFFF';
+            $('#new_category_modal').show();
+        },
+        close: function closeNewCategory() {
+            $('#new_category_modal').hide();
+        },
+        commit: function commitNewCategory() {
+            vm.statusEngine.addStatus(
+                vm.newCategory.inputName,
+                vm.newCategory.selectedBefore,
+                vm.newCategory.color);
+        },
+        clickCreate: function() {
+            vm.newCategory.commit();
+            vm.newCategory.close();
+        }
     }
+<<<<<<< HEAD
     
 }
+=======
+    vm.newCategory.initialize();
+}
+>>>>>>> 0778ce49d14e9592880c9b57ead625bb3a0f78c9

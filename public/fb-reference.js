@@ -10,7 +10,7 @@ function createFirebaseConnection($q,sessionStore){
     var firebaseConnection = {};
     
     firebaseConnection.sessionStore = {
-        currentBoardKey: '-Kibv581Q_giCS_NhjqP',
+        currentBoardKey: 'i dont know how to make a normal key',
         currentUser: {
             id: '-KiCr5cFW5EW2kFbVG1f',
             email: null,
@@ -20,20 +20,28 @@ function createFirebaseConnection($q,sessionStore){
     };
     firebaseConnection.register = function(newUser){
         var deferred = $q.defer();
+        //Adds an authorized user to the firebase authentication service
         fb_auth.createUserWithEmailAndPassword(newUser.email, newUser.password).then(function(res){
             if(res.uid){
+                //Indicates that authentication was succesful
                 var user = {
                     name: newUser.name,
                     email: newUser.email,
                     type: newUser.type || 'basic',
                     uid: res.uid
-                }
+                };
+                //Create a system user account that can be accessed by the application
                 fb_reference.child('users').push(user);
-                var response = {success:true}
+                var response = {
+                    success:true
+                };
                 deferred.resolve(response);
             }
             else{
-                var response = {success:false}
+                //Indicate that authentication was unsuccesful
+                var response = {
+                    success:false
+                };
                 deferred.resolve(response);
             }
         });
@@ -41,9 +49,11 @@ function createFirebaseConnection($q,sessionStore){
     };
     firebaseConnection.authorize = function(username,password){
         var deferred = $q.defer();
+        //Authorizes with Firebase's authentication service
         fb_auth.signInWithEmailAndPassword(username,password).then(
         function(authData){
            if(authData.uid){
+               //Upon successful authentication the user's system profile is referenced to extract system proprietary details
                 fb_reference.child('users').orderByChild('uid').equalTo(authData.uid).once('value',function(snap){
                     snap.forEach(function(element){
                         var user = element.val();
@@ -55,19 +65,25 @@ function createFirebaseConnection($q,sessionStore){
                         if(user.authorizedBoards[0]){
                             firebaseConnection.sessionStore.currentUser.authorizedBoards = user.authorizedBoards;
                         }
+                        //Creates cookie for session
                         sessionStore.setSessionData(firebaseConnection.sessionStore.currentUser);
-                           var response = {success:true};
-                            deferred.resolve(response);
+                        //Returns to login controller that authentication was successful and the user's credentails are active in the current session
+                        var response = {
+                            success:true
+                        };
+                        deferred.resolve(response);
                     });
                  });              
            }
         }
         ).catch(function(error){
+            //Indicates that there was an error in authenticating with Firebase's authentication service
              var response = {success: false}
                deferred.resolve(response);
         });
         return deferred.promise;
     }
+    //Allows users and admins to update user details
     firebaseConnection.updateUser = function(user){
         var boardsList =[];
         if(user.authorizeForAllBoards){
@@ -98,8 +114,14 @@ function createFirebaseConnection($q,sessionStore){
     firebaseConnection.deleteUser = function(user){
         fb_reference.child('users').child(user.$id).remove();
     }
-    firebaseConnection.deactivateBoard = function(board){
-        fb_reference.child('boards').child(board.$id).child('active').set(false);
+    firebaseConnection.deactivateBoard = function(boardId){
+        fb_reference.child('boards').child(boardId).child('active').set(false);
+    }
+    firebaseConnection.reactivateBoard = function(boardId){
+        fb_reference.child('boards').child(boardId).child('active').set(true);
+    }
+    firebaseConnection.deleteBoard = function(boardId){
+        fb_reference.child('boards').child(boardId).remove();
     }
     firebaseConnection.updateBoard = function(board){
         var boardRef = fb_reference.child('boards').child(board.$id)
@@ -109,7 +131,6 @@ function createFirebaseConnection($q,sessionStore){
         if(board.blackList){
             boardRef.child('blackList').set(board.blackList);
         }
-
     }
     firebaseConnection.authorizeBoard = function(userKey,board){
         fb_reference
@@ -119,16 +140,7 @@ function createFirebaseConnection($q,sessionStore){
             .push(board);
     }
     
-    // todo describe method
-    firebaseConnection.createUserProfile = function(){
-        var newUser = {
-            firstName: 'Testy',
-            lastName: 'McTestface'
-        };
-        this.sessionStore.currentUserKey = fb_reference.child('users').push(newUser).getKey();
-    };
-    
-    // todo describe method
+    // tests Firebase connection to determine if integration with storyteller was successful
     firebaseConnection.testFirebaseConnection = function(){
         var deferred = $q.defer();
         fb_reference.child('.info/connected').on('value', function(connectedSnap) {
@@ -138,10 +150,7 @@ function createFirebaseConnection($q,sessionStore){
                     ref: fb_reference.toString()
                 };
                 deferred.resolve(response);
-            }
-            // else if(connectedSnap.val() === false){
-            //     deferred.resolve(connectedSnap.val());
-            // }           
+            }     
         });
         return deferred.promise;
     };
@@ -155,7 +164,8 @@ function createFirebaseConnection($q,sessionStore){
                 order: statusObj.order || 2,
                 color: statusObj.color || '#AFA',
                 deletable: statusObj.deletable,
-                display: statusObj.display
+                display: statusObj.display,
+                allow_before: statusObj.allow_before
             });
     }
     
@@ -180,9 +190,6 @@ function createFirebaseConnection($q,sessionStore){
     firebaseConnection.createBoard = function createBoard (board){
         var newBoard = {
             name: board.name,
-            ownerUser: board.ownerUser,
-            users: [],
-            stories: board.stories,
             active: true,
             columns: 10,
             jargonEnabled: board.jargonEnabled || false,
@@ -199,7 +206,8 @@ function createFirebaseConnection($q,sessionStore){
             order: 1,
             color: '#F88',
             deletable: false,
-            display: true
+            display: true,
+            allow_before: false
         });
         firebaseConnection.createStatus(boardRef, {
             name: 'under consideration',
@@ -207,28 +215,33 @@ function createFirebaseConnection($q,sessionStore){
             color: '#88F',
             deletable: false,
             display: true,
-            default: true
+            default: true,
+            allow_before: true
         });
         firebaseConnection.createStatus(boardRef, {
             name: 'discarded',
             color: '#FFF',
             deletable: false,
             display: false,
+            allow_before: false
         });
         return boardRef;
     };
     
-    // deactivate existing board
-    /*
-    firebaseConnection.deactivateBoard = function(board) {
-      // fb_reference.child('boards').
-    };
-    */
-    
-    // 
     firebaseConnection.getBoards = function(){
         return fb_reference
             .child('boards').orderByChild('active').equalTo(true);
+    }
+	firebaseConnection.getStories = function(boardId){
+		var deferred = $q.defer()
+		fb_reference.child('boards').child(boardId).child('stories').once('value',function(snap){
+			deferred.resolve(snap);
+		});
+		return deferred.promise;
+	}
+    firebaseConnection.getInactiveBoards = function(){
+        return fb_reference
+            .child('boards').orderByChild('active').equalTo(false);
     }
     firebaseConnection.getUsers = function(){
         return fb_reference
