@@ -16,9 +16,12 @@ function boardController (
   ) {
     // vm is View Model (MVVM)
     var vm = this;
+    vm.manualFlagDescription;
+    vm.showManualFlag=false;
     
     vm.boardKey = firebaseConnection.sessionStore.currentBoardKey;
     vm.board = firebaseConnection.getBoardByKey(vm.boardKey);
+    console.log("CONGRATS, YOU HAVE LOADED INTO " + vm.boardKey);
     
     /* fill in the name of board in the navbar */
     vm.boardName = $firebaseObject(vm.board.child('name'));
@@ -39,7 +42,7 @@ function boardController (
         var target = $(".navbar-nav");
         
         /* inject new story button to navbar */
-        var injected_nav_item_new_story = $("<li><a>New Story</a></li>");
+        var injected_nav_item_new_story = $("<li><a>New Story!</a></li>");
         injected_nav_item_new_story.attr('ng-click', 'vm.newStoryModal.open();');
         target.append(injected_nav_item_new_story);
         
@@ -52,6 +55,11 @@ function boardController (
         var injected_nav_item_undo = $("<li class='undo'><a>Undo</a></li>");
         injected_nav_item_undo.attr('ng-click', 'vm.history.undo();');
         target.append(injected_nav_item_undo);
+		
+		/* var injected_nav_item_filterDropdown =  */
+		var injected_nav_item_filterButton = $("<li><a>Filter by Role:</a></li>");
+		
+		target.append(injected_nav_item_filterButton);
         
         
         
@@ -259,6 +267,8 @@ function boardController (
         },
     }
     
+    
+    
     vm.dragEngine = {
         draggableDropOnZone: function(event, ui){
             var position = ui.draggable.position();
@@ -297,6 +307,8 @@ function boardController (
     
     vm.statusEngine.initialize();
     
+    vm.rolePattern = /As a (\w+)\s+I want/;
+    
     vm.history = {
         
         undoStack: [],
@@ -331,14 +343,20 @@ function boardController (
         story: {},
         name: '',
         body: '',
+        manualFlags: {},
         bindToStoryById: function(story){
             vm.activeStory.story = story;
-            
             var styleTarget = $('#active_story_screen');
             var styleSource = $('#' + story.$id);
             var computedSourceStyle = window.getComputedStyle(styleSource[0]);
             styleTarget[0].style.setProperty('--theme-color',
                 computedSourceStyle.getPropertyValue('--theme-color'));
+            this.manualFlags = $firebaseArray(
+                vm.storiesRef
+                    .child(story.$id)
+                    .child('analysisLog')
+                    .child('manual')
+                );
         },
         onNameChange: function() {
             story.name = vm.activeStory.story.name;
@@ -347,7 +365,7 @@ function boardController (
             vm.board.child('stories').pull(story)
         },
         onBodyChange: function() {
-            //story.body = vm.activeStory.story.body;
+            story.body = vm.activeStory.story.body;
         },
         onStatusChange: function() {
             story.status = vm.activeStory.story.status;
@@ -359,6 +377,48 @@ function boardController (
             $('#active_story_screen').hide();
         }
     }
+    
+    vm.roleEngine = {
+        roleRef: vm.board.child("roles"),
+        
+        onRemoveStory: function onRemoveStory(role) {
+            vm.roleEngine.roleRef
+                .child(role)
+                .once("value", function(snapshot){
+                    var count = snapshot.val();
+                    
+                    if (count == 1) {
+                        vm.roleEngine.roleRef
+                            .child(role)
+                            .remove();
+                    }
+                    else 
+                    { 
+                        vm.roleEngine.roleRef
+                            .set({
+                                [role]: count-1
+                            });
+                    }
+                });          
+        },
+        
+        onAddStory: function onAddStory(role) {
+            vm.roleEngine.roleRef
+                .child(role)
+                .once("value", function(snapshot){
+                    console.log(snapshot.val());
+                    if (snapshot.val() == null) { // if it doesn't have an entry yet
+                        vm.roleEngine.roleRef.set({
+                            [role]: 1
+                        });
+                    } else { // if it already has an entry
+                        vm.roleEngine.roleRef.set({
+                            [role]: snapshot.val() + 1
+                        });
+                    }
+                });
+        },
+    };
     
     vm.newStoryTemplate = {
         body: null,
@@ -374,10 +434,15 @@ function boardController (
         commit: function commitNewStory() {
             // todo delegate to storyEngine
             flagBoardForAnalysis();
+            
+            
+            
             var newPostRef = vm.board.child('stories').push({
                 body: vm.newStoryTemplate.body,
                 name: vm.newStoryTemplate.name,
+                role: vm.newStoryTemplate.role,
             });
+            vm.roleEngine.onAddStory(vm.newStoryTemplate.role);
             var storyObj = $firebaseObject(newPostRef);
             storyObj.$loaded().then(function() {
                 vm.statusEngine.addStoryToStatus(storyObj, vm.newStoryTemplate.status);
@@ -402,6 +467,9 @@ function boardController (
                 // setTimeout is necessary because the above statement is not finished once it returns
                 setTimeout(function() { newStoryTextArea[0].setSelectionRange(selectStart, selectStart); }, 50);
             } else {
+                var myArray = this.body.match(vm.rolePattern);
+                
+                this.role = myArray[1];
                 this.bodySnapshot = this.body;
             }
         }
@@ -432,40 +500,69 @@ function boardController (
             });
     }
     
+    
+    
     vm.storyBodyChanged = function storyBodyChanged(story) {
-        flagBoardForAnalysis();
-        var analysis = storyValidationClient.validStoryFormat(story.body);
-        
+      flagBoardForAnalysis();
+      var analysis = storyValidationClient.validStoryFormat(story.body);
+              
+      var myArray = story.body.match(vm.rolePattern);
+      var vm_story = $firebaseObject(vm.board.child('stories').child(story.$id));
+      vm_story.$loaded().then(function snapshotLoaded() {
         if (analysis.pass) {
-            vm.board.child('stories')
-                .child(story.$id)
-                .update({
-                    body: story.body || '',
-                });
+              
+          var update = {
+            body: story.body || '',
+          };
+          var oldRole = vm_story.role;
+          if (oldRole != myArray[1]) {                    
+            vm.roleEngine.onRemoveStory(oldRole);
+            vm.roleEngine.onAddStory(myArray[1]);
+            update["role"] = myArray[1];
+          }
+          vm.board.child('stories')
+            .child(story.$id)
+            .update(update);
         } else {
-            var vm_story = vm.board.child('stories')
-                .child(story.$id);
-                
-            var vm_story = $firebaseObject(vm.board.child('stories').child(story.$id).child('body'));
-            
-            vm_story.$loaded().then(function snapshotLoaded() {
-                var snapshot = vm_story.$value;
-                var textArea = $('#active_story_screen div.story_body textarea');
-                var selectStart = textArea.prop('selectionStart');
-                if (story.body.length > snapshot.length) { // user inserted character to break formatting
-                    selectStart -= 1;
-                } else { // user removed character to break formatting
-                    selectStart += 1;
-                }
-                story.body = snapshot;
-                // setTimeout is necessary because the above statement is not finished once it returns
-                setTimeout(function() { textArea[0].setSelectionRange(selectStart, selectStart); }, 50);
-            });
+          var vm_story = $firebaseObject(vm.board.child('stories').child(story.$id).child('body'));
+          
+          vm_story.$loaded().then(function snapshotLoaded() {
+              var snapshot = vm_story.$value;
+              var textArea = $('#active_story_screen div.story_body textarea');
+              var selectStart = textArea.prop('selectionStart');
+              if (story.body.length > vm_story.body.length) { // user inserted character to break formatting
+                  selectStart -= 1;
+              } else { // user removed character to break formatting
+                  selectStart += 1;
+              }
+              story.body = vm_story.body;
+              // setTimeout is necessary because the above statement is not finished once it returns
+              setTimeout(function() { textArea[0].setSelectionRange(selectStart, selectStart); }, 50);
+          });
         }
+      });
+    };
+       
+    vm.onclick_flagStory = function(story) {
+    vm.storiesRef.child(story.$id).child('analysisLog').child('manual').push(vm.manualFlagDescription);
+    vm.showManualFlag=false;
     }
        
-    
-    
+    vm.toggleManualDescription=function()
+    {
+      vm.showManualFlag=true;
+    }
+       
+    vm.onclick_deleteFlag = function(flag)
+    {
+        vm.storiesRef
+            .child(vm.activeStory.story.$id)
+            .child('analysisLog')
+            .child('manual')
+            .child(flag.$id)
+            .remove();
+    } 
+
     function flagBoardForAnalysis() {
         vm.board.child('edited').child('duplicate').set(true);
         vm.board.child('edited').child('jargon').set(true);
@@ -474,6 +571,7 @@ function boardController (
     vm.onDoubleClick = function(story) {
         vm.activeStory.bindToStoryById(story);
         vm.activeStory.startEditing();
+        vm.showManualFlag= false;
         
     }
     

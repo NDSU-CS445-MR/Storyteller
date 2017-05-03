@@ -114,8 +114,11 @@ function createFirebaseConnection($q,sessionStore){
     firebaseConnection.deleteUser = function(user){
         fb_reference.child('users').child(user.$id).remove();
     }
-    firebaseConnection.deactivateBoard = function(board){
-        fb_reference.child('boards').child(board.$id).child('active').set(false);
+    firebaseConnection.deactivateBoard = function(boardId){
+        fb_reference.child('boards').child(boardId).child('active').set(false);
+    }
+    firebaseConnection.reactivateBoard = function(boardId){
+        fb_reference.child('boards').child(boardId).child('active').set(true);
     }
     firebaseConnection.deleteBoard = function(boardId){
         fb_reference.child('boards').child(boardId).remove();
@@ -128,7 +131,6 @@ function createFirebaseConnection($q,sessionStore){
         if(board.blackList){
             boardRef.child('blackList').set(board.blackList);
         }
-
     }
     firebaseConnection.authorizeBoard = function(userKey,board){
         fb_reference
@@ -278,6 +280,13 @@ function createFirebaseConnection($q,sessionStore){
         return fb_reference
             .child('boards').orderByChild('active').equalTo(true);
     }
+	firebaseConnection.getStories = function(boardId){
+		var deferred = $q.defer()
+		fb_reference.child('boards').child(boardId).child('stories').once('value',function(snap){
+			deferred.resolve(snap);
+		});
+		return deferred.promise;
+	}
     firebaseConnection.getInactiveBoards = function(){
         return fb_reference
             .child('boards').orderByChild('active').equalTo(false);

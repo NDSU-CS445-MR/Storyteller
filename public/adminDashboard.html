@@ -1,4 +1,3 @@
-
 <div class=" row col-md-3">
    <div class="col-md-1 side-nav">
       <div class="side-menu">
@@ -31,7 +30,13 @@
          <nav class="navbar navbar-default" role="navigation">
             <div class="side-menu-container">
                <ul class="nav navbar-nav">
-                  <li ng-if="vm.showBoardBlade &&(board.active || vm.deletedBoards)" ng-repeat="board in vm.boards | filter: vm.search" ng-class="{active : vm.activeData.$id === board.$id}"><a ng-click="vm.onClick_viewChild('board',board)">{{board.name}}</a></li>
+                  <li 
+                      ng-if="vm.showBoardBlade &&(board.active || vm.deletedBoards)"
+                      ng-repeat="board in vm.boards | filter: vm.search"
+                      ng-class="{active : vm.activeData.$id === board.$id}"
+                      class="blade">
+                    <a ng-click="vm.onClick_viewChild('board',board)">{{board.name}}</a>
+                  </li>
                   <li ng-if="vm.showUserBlade && user.$id != vm.currentUser.id"ng-repeat="user in vm.users | filter: vm.search" ng-class="{active : vm.activeData.$id === user.$id}"><a ng-click="vm.onClick_viewChild('user',user)">{{user.email}}</a></li>
                </ul>
             </div>
@@ -250,6 +255,7 @@
          </div>
          <div class="panel-footer" style="height:50px;">
             <div class="btn-group-sm">
+               <div ng-if="!vm.creatingNew" type="button" ng-click="vm.onClick_exportToCSV()" class="btn btn-primary pull-left">Export Board to CSV</div>
                <div ng-if="!vm.deletedBoards" class="btn btn-default pull-right" style="color:green" ng-click="vm.onClick_saveBoard()">Save</div>
                <div ng-if="vm.deletedBoards" class="btn btn-success pull-right" ng-click="vm.onClick_reactivateBoard()">Re-Activate</div>
                <div ng-if="!vm.deletedBoards"class="btn btn-default pull-right" data-toggle="modal" data-target="#confirmModal">Delete</div>
@@ -258,7 +264,6 @@
          </div>
       </div>
    </div>
-</div>
 </div>
 <!-- Delete Confirmation Modal -->
 <div id="confirmModal" class="modal fade" role="dialog">
