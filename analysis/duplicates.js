@@ -1,34 +1,41 @@
 var firebase = require('firebase');
+var config = require('../public/fb-config.js').fb_configRef();
 var firebaseStoriesRef;
 var firebaseBoardRef;
 var isEdited = true;
 var isActive = false;
 var storiesCache = [];
+var boardKey;
 
-
+//Listens and responds to messages from the board's dispatcher
 process.on('message', function(message) {
 	switch(message.head){
 		case 'initialize':{
-			console.log('[duplicate] Recieved message: ',message.data);
-			firebaseBoardRef = firebase.initializeApp(message.data).database().ref().child('boards').child('-KdwTvkimpR2Rq9YB38L');
+			//console.log('[duplicate] Recieved message: ',message.data);
+			boardKey = message.data;
+			firebase.initializeApp(config)
+			firebaseBoardRef = firebase.database().ref().child('boards').child(message.data);
 			firebaseStoriesRef = firebaseBoardRef.child('stories');
 		    beginAnalysis();
+			break;
 		}
 		case 'disconnect':{
 			process.disconnect();
+			break;
 		}
 	}
 });
-
+//retrieves a list of all stories and begins analysis
 var beginAnalysis = function(){
 	firebaseBoardRef.child('edited').child('duplicate').on('value',function(snap){
+		//Prevents multiple instances of analysis executing at once
 		if(!isActive && snap.val()){
 			storiesCache = [];
-			console.log('Starting duplicate analysis');
+			//console.log('Starting duplicate analysis');
 			isActive = true;
 			firebaseBoardRef.child('edited').child('duplicate').set(false);
+			//Listens to story object, if a story is changed analysis is initiated
 			firebaseStoriesRef.once('value',function(stories){
-				console.log("Oops I did it again");
 			stories.forEach(function(story){
 			var tempStory = {
 				id: story.key,
@@ -40,17 +47,14 @@ var beginAnalysis = function(){
 			findDuplicates(story);
 		});
 			isActive = false;
-			console.log(isActive);
 		});
 		}
 	});
 }
 
+//Updates the current log for the story being analized
 var logResults = function(story,updatedLog){
-	console.log(updatedLog);
 	var currentLog =[];
-	//populate currentLog
-	console.log('updated: ',updatedLog);
 	firebaseStoriesRef.child(story.id).child('analysisLog').child('duplicates').remove().then(function(){
 		updatedLog.forEach(function(log){
 			firebaseStoriesRef.child(story.id).child('analysisLog').child('duplicates').push(log);
@@ -60,10 +64,7 @@ var logResults = function(story,updatedLog){
 }
 
 var findDuplicates = function(storyCheck) {
-	//console.log(storyCheck);
-  //created or edited story
-  //Story body
-  //storyCheck = "As a Customer I want The system to utilize a web server So that Users get a web-based experience"; 
+
   var storyCheckBody = storyCheck.data.body;
   storyCheckBody= storyCheckBody.toLowerCase(); //converting to lowercase for comparison
   //Trimming required words, punctuation, and articles
@@ -92,10 +93,8 @@ var findDuplicates = function(storyCheck) {
  storiesCache.forEach(function(comparedStory)
 	{
 		if(storyCheck.id != comparedStory.id){
-		//var done = false; //changes to true after analysis
 		var counter = 0; //increments for each duplicate 
 
-		//var comparedStoryBody = "As a Customer I want The system to utilize a web server So that Users get a web-based experience"; //User Story being compared to
 		var comparedStoryBody = comparedStory.data.body;
 		comparedStoryBody=comparedStoryBody.toLowerCase(); //trim
 		comparedStoryBody = comparedStoryBody.replace(/as a /g, '');
@@ -121,37 +120,34 @@ var findDuplicates = function(storyCheck) {
 					break;
 				}
 			}
-			}
+		}
 		if(counter != 1 && storyArray.length != 1){
-
-		if (counter /(storyArray.length) *100 >= 85 ) //Strong duplicate calculation
-		{	
-      //Assign flag to data object
-			 console.log('[duplicate] Strong duplicate detected between', storyCheck.id, " and ", comparedStory.id);
-			
-			// console.log('DETAILS: ',comparedStoryBody,storyCheckBody,counter,storyArray.length);
-			var newLog = {
-				story: comparedStory.id,
-				details: 'strong duplicate detected',
-
-			};
-			updatedLog.push(newLog);
+			var potentialThreshold = 70; //change this to adjust detection sensativity (Higher = less sensative)
+			var strongThreshold = 85;//change this to adjust the detection sensativity (Higher = less sensative)
+			if (counter /(storyArray.length) *100 >= strongThreshold ) //Strong duplicate calculation
+			{				
+				//create new log object to show details in duplicate detection	
+				//console.log("\nStrong duplicate detected: ",comparedStory.id, storyCheck.id, "\nWith: ", storyCheckBody,comparedStoryBody,"\n\n");
+				var newLog = {
+					story: comparedStory.id,
+					details: 'strong duplicate detected',
+				};
+				updatedLog.push(newLog);
+			}
+			else if (counter /(storyArray.length) *100 >= potentialThreshold) //Potential duplicate calculation
+			{
+				//console.log("\nPossible duplicate detected: ",comparedStory.id, storyCheck.id, "\nWith: ", storyCheckBody,comparedStoryBody,"\n\n");
+				var newLog = {
+					story: comparedStory.id,
+					details: 'possible duplicate detected',
+				};
+				updatedLog.push(newLog);
+			}
 		}
-		else if (counter /(storyArray.length) *100 >= 60) //Potential duplicate calculation
-		{
-
-			var newLog = {
-				story: comparedStory.id,
-				details: 'possible duplicate detected',
-			};
-			updatedLog.push(newLog);
-		}
-	}
 	
-		}
+	}
 		
  });
- console.log('ANANA: ',updatedLog);
  logResults(storyCheck,updatedLog);
  updatedLog = [];
 }
