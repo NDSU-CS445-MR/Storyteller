@@ -514,12 +514,13 @@ function boardController (
           var update = {
             body: story.body || '',
           };
+          /*
           var oldRole = vm_story.role;
           if (oldRole != myArray[1]) {                    
             vm.roleEngine.onRemoveStory(oldRole);
             vm.roleEngine.onAddStory(myArray[1]);
             update["role"] = myArray[1];
-          }
+          }*/
           vm.board.child('stories')
             .child(story.$id)
             .update(update);

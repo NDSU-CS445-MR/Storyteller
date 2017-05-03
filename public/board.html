@@ -52,12 +52,6 @@
       <button class="btn btn-default pull-right" type= "button" ng-click="vm.onclick_flagStory(vm.activeStory.story)">Save Manual Flag</button>
     </div>
   </div>
-  <div class="bottom_margin">
-    <div class="badge flag flag-duplicate" ng-if="vm.activeStory.story.analysisLog.duplicates != null">possible
-    duplicate</div>
-    <div class="badge flag flag-jargon" ng-if="vm.activeStory.story.analysisLog.jargon != null">possible jargon</div>
-    <button class="cancel btn btn-default" type="button" ng-click="vm.activeStory.stopEditing();">Exit</button>
-  </div>
   <div id="active_story_cancel_margin" class="cancel_modal" ng-click="vm.activeStory.stopEditing();"></div>
 </div>
 <!-- new category menu, hidden by default -->
