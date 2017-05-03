@@ -1,107 +1,100 @@
 <!-- new user story model, hidden by default -->
-<html>
-  <head>
-    <title></title>
-  </head>
-  <body>
-    <div id="new_story_screen" class="modal modal_story">
-      <div id="new_story" class="modal notecard notecard_detailed">
-        <div class="userstory_key create_userstory_key">
-          <textarea type="text" ng-model="vm.newStoryTemplate.name" placeholder="new user story name"></textarea>
-        </div>
-        <div class="story_body">
-          <textarea id="newStoryBody" ng-model="vm.newStoryTemplate.body" ng-change="vm.newStoryTemplate.changed();"></textarea>
-        </div>
-        <div class="bottom_margin">
-          <button class="save btn btn-default" type="button" ng-click="vm.newStoryModal.save();">Save</button> 
-          <button class="save btn btn-default" type="button" ng-click="vm.newStoryModal.saveAndClose();">Save and close</button> 
-          <button class="cancel btn btn-default" type="button" ng-click="vm.newStoryModal.close();">Cancel</button>
-        </div>
-      </div>
-      <div id="new_story_cancel_margin" class="cancel_modal" ng-click="vm.newStoryModal.close();"></div>
+<div id="new_story_screen" class="modal modal_story">
+  <div id="new_story" class="modal notecard notecard_detailed">
+    <div class="userstory_key create_userstory_key">
+      <textarea type="text" ng-model="vm.newStoryTemplate.name" placeholder="new user story name"></textarea>
     </div>
-    <!-- detailed story view, hidden by default -->
-    <div id="active_story_screen" class="modal modal_story">
-      <div id="active_story" class="modal notecard notecard_detailed">
-        <div class="userstory_key">
-          <textarea id="editTitle" type="text" ng-model="vm.activeStory.story.name"
-          ng-change="vm.storyTitleChanged(vm.activeStory.story)" placeholder="user story name" rows="1"></textarea>
-        </div>
-        <div class="status">status:</div>
-        <div class="story_body">
-          <textarea id="editBody" ng-model="vm.activeStory.story.body"
-          ng-change="vm.storyBodyChanged(vm.activeStory.story)"></textarea>
-          <!-- vm.activeStory.onBodyChange() -->
-        </div>
-        <div class="bottom_margin">
-          <div class="badge flag flag-duplicate" ng-if="vm.activeStory.story.analysisLog.duplicates != null">possible
-          duplicate</div>
-          <div class="badge flag flag-jargon" ng-if="vm.activeStory.story.analysisLog.jargon != null">possible jargon</div>
-          <button class="cancel btn btn-default" type="button" ng-click="vm.activeStory.stopEditing();">Exit</button>
-        </div>
-      </div>
-      <div id="active_story_cancel_margin" class="cancel_modal" ng-click="vm.activeStory.stopEditing();"></div>
+    <div class="story_body">
+      <textarea id="newStoryBody" ng-model="vm.newStoryTemplate.body" ng-change="vm.newStoryTemplate.changed();"></textarea>
     </div>
-    <!-- new category menu, hidden by default -->
-    <div id="new_category_modal" class="modal">
-      <div class="modal category_modal">
-        <form>
-        <h1>New category</h1>
-        <div class="form-group">
-        <label for="newCategoryNameInput">Category name</label> 
-        <input type="text" class="form-control" id="newCategoryNameInput" ng-model="vm.newCategory.inputName" /> 
-        <small id="newCategoryHelp" class="form-text text-muted">Give your new category a name, like 
-        <i>release 1</i> or 
-        <i>stretch goal</i></small></div>
-        <div class="form-group">
-        <label for="selectStatusBefore">Place before:</label> 
-        <select class="form-control" id="selectStatusBefore" ng-model="vm.newCategory.selectedBefore">
-          <option ng-repeat="option in vm.newCategory.available" ng-value="option">{{option.name}}</option>
-        </select> 
-        <small id="newCategoryPlaceBeforeHelp" class="form-text text-muted">Pick which category you want to put this new one
-        before.</small></div>
-        <div class="form-group">
-        <label for="newCategoryColorInput">Color</label> 
-        <input type="text" class="form-control" id="newCategoryColorInput" ng-model="vm.newCategory.color" /> 
-        <small id="newCategoryColorHelp" class="form-text text-muted">Specify a color for this new category. Use 
-        <a href="https://en.wikipedia.org/wiki/Web_colors">hexadecimal format</a> (#AF0189, for example)</small></div>
-        <button type="submit" class="btn btn-primary" ng-click="vm.newCategory.close();">Cancel</button> 
-        <button type="submit" class="btn btn-primary" ng-click="vm.newCategory.clickCreate();">Create</button></form>
-      </div>
-      <div id="cancel_category_modal" class="cancel_modal" ng-click="vm.newCategory.close();"></div>
+    <div class="bottom_margin">
+      <button class="save btn btn-default" type="button" ng-click="vm.newStoryModal.save();">Save</button> 
+      <button class="save btn btn-default" type="button" ng-click="vm.newStoryModal.saveAndClose();">Save and close</button> 
+      <button class="cancel btn btn-default" type="button" ng-click="vm.newStoryModal.close();">Cancel</button>
     </div>
-    <div class="boardWrapper">
-      <div class='liveStatusWrapper'>
-        <div ng-include="&#39;./public/navbar.html&#39;" onload="vm.injectNav();"></div>
-        <div data-ng-repeat="acceptance in vm.statusEngine.statuses | filter: { display: true } | orderBy: &#39;order&#39;"
-        name="{{acceptance.$id}}" class="drop-zone {{acceptance.name}}-drop-zone drop-zone-bound">
-          <div class="drop-zone-header">
-            <h1>{{acceptance.name}}</h1>
-          </div>
-          <div class="drop-grid">
-            <div ng-repeat="story in vm.stories | filter: { status: acceptance.name } | orderBy: &#39;status_row_col_index&#39; track by $index"
-            ng-style="{ &#39;grid-row&#39;: &#39;&#39; + story.row, &#39;grid-column&#39;: &#39;&#39; + story.col }">
-              <div id="{{story.$id}}" ng-dblclick="vm.onDoubleClick(story)" class="notecard notecard_brief drag">
-                <div class="userstory_key">
-                  <textarea class="userstory_name" type="text" ng-change="vm.storyTitleChanged(story);"
-                  ng-model="story.name"></textarea>
-                </div>
-                <div class="notecard_bottom_margin">
-                  <div class="badge flag flag-duplicate" ng-if="story.analysisLog.duplicates != null">duplicate</div>
-                  <div class="badge flag flag-jargon" ng-if="story.analysisLog.jargon != null">jargon</div>
-                </div>
-              </div>
+  </div>
+  <div id="new_story_cancel_margin" class="cancel_modal" ng-click="vm.newStoryModal.close();"></div>
+</div>
+<!-- detailed story view, hidden by default -->
+<div id="active_story_screen" class="modal modal_story">
+  <div id="active_story" class="modal notecard notecard_detailed">
+    <div class="userstory_key">
+      <textarea id="editTitle" type="text" ng-model="vm.activeStory.story.name"
+      ng-change="vm.storyTitleChanged(vm.activeStory.story)" placeholder="user story name" rows="1"></textarea>
+    </div>
+    <div class="status">status:</div>
+    <div class="story_body">
+      <textarea id="editBody" ng-model="vm.activeStory.story.body"
+      ng-change="vm.storyBodyChanged(vm.activeStory.story)"></textarea>
+      <!-- vm.activeStory.onBodyChange() -->
+    </div>
+    <div class="bottom_margin">
+      <div class="badge flag flag-duplicate" ng-if="vm.activeStory.story.analysisLog.duplicates != null">possible
+      duplicate</div>
+      <div class="badge flag flag-jargon" ng-if="vm.activeStory.story.analysisLog.jargon != null">possible jargon</div>
+      <button class="cancel btn btn-default" type="button" ng-click="vm.activeStory.stopEditing();">Exit</button>
+    </div>
+  </div>
+  <div id="active_story_cancel_margin" class="cancel_modal" ng-click="vm.activeStory.stopEditing();"></div>
+</div>
+<!-- new category menu, hidden by default -->
+<div id="new_category_modal" class="modal">
+  <div class="modal category_modal">
+    <form>
+    <h1>New category</h1>
+    <div class="form-group">
+    <label for="newCategoryNameInput">Category name</label> 
+    <input type="text" class="form-control" id="newCategoryNameInput" ng-model="vm.newCategory.inputName" /> 
+    <small id="newCategoryHelp" class="form-text text-muted">Give your new category a name, like 
+    <i>release 1</i> or 
+    <i>stretch goal</i></small></div>
+    <div class="form-group">
+    <label for="selectStatusBefore">Place before:</label> 
+    <select class="form-control" id="selectStatusBefore" ng-model="vm.newCategory.selectedBefore">
+      <option ng-repeat="option in vm.newCategory.available" ng-value="option">{{option.name}}</option>
+    </select> 
+    <small id="newCategoryPlaceBeforeHelp" class="form-text text-muted">Pick which category you want to put this new one
+    before.</small></div>
+    <div class="form-group">
+    <label for="newCategoryColorInput">Color</label> 
+    <input type="text" class="form-control" id="newCategoryColorInput" ng-model="vm.newCategory.color" /> 
+    <small id="newCategoryColorHelp" class="form-text text-muted">Specify a color for this new category. Use 
+    <a href="https://en.wikipedia.org/wiki/Web_colors">hexadecimal format</a> (#AF0189, for example)</small></div>
+    <button type="submit" class="btn btn-primary" ng-click="vm.newCategory.close();">Cancel</button> 
+    <button type="submit" class="btn btn-primary" ng-click="vm.newCategory.clickCreate();">Create</button></form>
+  </div>
+  <div id="cancel_category_modal" class="cancel_modal" ng-click="vm.newCategory.close();"></div>
+</div>
+<div class="boardWrapper">
+  <div class='liveStatusWrapper'>
+    <div ng-include="&#39;./public/navbar.html&#39;" onload="vm.injectNav();"></div>
+    <div data-ng-repeat="acceptance in vm.statusEngine.statuses | filter: { display: true } | orderBy: &#39;order&#39;"
+    name="{{acceptance.$id}}" class="drop-zone {{acceptance.name}}-drop-zone drop-zone-bound">
+      <div class="drop-zone-header">
+        <h1>{{acceptance.name}}</h1>
+      </div>
+      <div class="drop-grid">
+        <div ng-repeat="story in vm.stories | filter: { status: acceptance.name } | orderBy: &#39;status_row_col_index&#39; track by $index"
+        ng-style="{ &#39;grid-row&#39;: &#39;&#39; + story.row, &#39;grid-column&#39;: &#39;&#39; + story.col }">
+          <div id="{{story.$id}}" ng-dblclick="vm.onDoubleClick(story)" class="notecard notecard_brief drag">
+            <div class="userstory_key">
+              <textarea class="userstory_name" type="text" ng-change="vm.storyTitleChanged(story);"
+              ng-model="story.name"></textarea>
+            </div>
+            <div class="notecard_bottom_margin">
+              <div class="badge flag flag-duplicate" ng-if="story.analysisLog.duplicates != null">duplicate</div>
+              <div class="badge flag flag-jargon" ng-if="story.analysisLog.jargon != null">jargon</div>
             </div>
           </div>
-          <div class="drop-grid-next-row"></div>
         </div>
       </div>
-      <div class="drop-zone discard-drop-zone">
-        <div class="drop-zone-header">
-          <h1>discard user story [!]</h1>
-        </div>
-        <div class="drop-grid"></div>
-      </div>
+      <div class="drop-grid-next-row"></div>
     </div>
-  </body>
-</html>
+  </div>
+  <div class="drop-zone discard-drop-zone">
+    <div class="drop-zone-header">
+      <h1>discard user story [!]</h1>
+    </div>
+    <div class="drop-grid"></div>
+  </div>
+</div>

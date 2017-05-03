@@ -20,20 +20,28 @@ function createFirebaseConnection($q,sessionStore){
     };
     firebaseConnection.register = function(newUser){
         var deferred = $q.defer();
+        //Adds an authorized user to the firebase authentication service
         fb_auth.createUserWithEmailAndPassword(newUser.email, newUser.password).then(function(res){
             if(res.uid){
+                //Indicates that authentication was succesful
                 var user = {
                     name: newUser.name,
                     email: newUser.email,
                     type: newUser.type || 'basic',
                     uid: res.uid
-                }
+                };
+                //Create a system user account that can be accessed by the application
                 fb_reference.child('users').push(user);
-                var response = {success:true}
+                var response = {
+                    success:true
+                };
                 deferred.resolve(response);
             }
             else{
-                var response = {success:false}
+                //Indicate that authentication was unsuccesful
+                var response = {
+                    success:false
+                };
                 deferred.resolve(response);
             }
         });
@@ -41,9 +49,11 @@ function createFirebaseConnection($q,sessionStore){
     };
     firebaseConnection.authorize = function(username,password){
         var deferred = $q.defer();
+        //Authorizes with Firebase's authentication service
         fb_auth.signInWithEmailAndPassword(username,password).then(
         function(authData){
            if(authData.uid){
+               //Upon successful authentication the user's system profile is referenced to extract system proprietary details
                 fb_reference.child('users').orderByChild('uid').equalTo(authData.uid).once('value',function(snap){
                     snap.forEach(function(element){
                         var user = element.val();
@@ -55,19 +65,25 @@ function createFirebaseConnection($q,sessionStore){
                         if(user.authorizedBoards[0]){
                             firebaseConnection.sessionStore.currentUser.authorizedBoards = user.authorizedBoards;
                         }
+                        //Creates cookie for session
                         sessionStore.setSessionData(firebaseConnection.sessionStore.currentUser);
-                           var response = {success:true};
-                            deferred.resolve(response);
+                        //Returns to login controller that authentication was successful and the user's credentails are active in the current session
+                        var response = {
+                            success:true
+                        };
+                        deferred.resolve(response);
                     });
                  });              
            }
         }
         ).catch(function(error){
+            //Indicates that there was an error in authenticating with Firebase's authentication service
              var response = {success: false}
                deferred.resolve(response);
         });
         return deferred.promise;
     }
+    //Allows users and admins to update user details
     firebaseConnection.updateUser = function(user){
         var boardsList =[];
         if(user.authorizeForAllBoards){
@@ -122,16 +138,7 @@ function createFirebaseConnection($q,sessionStore){
             .push(board);
     }
     
-    // todo describe method
-    firebaseConnection.createUserProfile = function(){
-        var newUser = {
-            firstName: 'Testy',
-            lastName: 'McTestface'
-        };
-        this.sessionStore.currentUserKey = fb_reference.child('users').push(newUser).getKey();
-    };
-    
-    // todo describe method
+    // tests Firebase connection to determine if integration with storyteller was successful
     firebaseConnection.testFirebaseConnection = function(){
         var deferred = $q.defer();
         fb_reference.child('.info/connected').on('value', function(connectedSnap) {
@@ -141,16 +148,13 @@ function createFirebaseConnection($q,sessionStore){
                     ref: fb_reference.toString()
                 };
                 deferred.resolve(response);
-            }
-            // else if(connectedSnap.val() === false){
-            //     deferred.resolve(connectedSnap.val());
-            // }           
+            }     
         });
         return deferred.promise;
     };
     /* board methods */
     
-    firebaseConnection.createStatus = function createStatus(boardRef, statusObj) {
+    firebaseConnection.createStatus = function createStatus(boardRef, statusObj, cb) {
         boardRef
             .child('statuses')
             .push({
@@ -160,10 +164,11 @@ function createFirebaseConnection($q,sessionStore){
                 deletable: statusObj.deletable,
                 display: statusObj.display,
                 allow_before: statusObj.allow_before
-            });
+            })
+            .then(cb);
     }
     
-    firebaseConnection.shiftStatusOrdersIfConflict = function shiftStatusOrders(boardRef, greaterThan) {
+    firebaseConnection.shiftStatusOrdersIfConflict = function shiftStatusOrders(boardRef, greaterThan, cb) {
         // check if there is a conflict
         boardRef
             .child('statuses')
@@ -175,9 +180,56 @@ function createFirebaseConnection($q,sessionStore){
                     .child('statuses')
                     .orderByChild('order')
                     .startAt(greaterThan)
-                    // todo handle query results
-                    .once('value', null)
+                    .once('value', function(matching_snap) {
+                      var remaining = matching_snap.numChildren();
+                      if (remaining == 0)
+                        cb();
+                      else {
+                        var decr = function() {
+                          if (--remaining == 0)
+                            cb();
+                        }
+                        matching_snap.forEach(function(element) {
+                          boardRef
+                            .child('statuses')
+                            .child(element.key)
+                            .update({
+                              order: element.val().order + 1
+                            })
+                            .then(decr);
+                        });
+                      }
+                    });
             })
+    }
+    
+    firebaseConnection.pullStatusOrdersForward = function(boardRef, greaterThan, cb) {
+      boardRef
+        .child('statuses')
+        .orderByChild('order')
+        .startAt(greaterThan)
+        .once('value', function(matching_snap) {
+          var remaining = matching_snap.numChildren();
+          if (remaining == 0)
+            cb();
+          else {
+            var decr = function() {
+              console.log('iter pull (' + remaining + ')')
+              if (--remaining == 0)
+                cb();
+            }
+            matching_snap.forEach(function(element) {
+              console.log("subtracting 1 from " + element.val().name + " (" + element.val().order + ")");
+              boardRef
+                .child('statuses')
+                .child(element.key)
+                .update({
+                  order: element.val().order - 1
+                })
+                .then(decr);
+            });
+          }
+        });
     }
     
     // create new board
@@ -222,14 +274,6 @@ function createFirebaseConnection($q,sessionStore){
         return boardRef;
     };
     
-    // deactivate existing board
-    /*
-    firebaseConnection.deactivateBoard = function(board) {
-      // fb_reference.child('boards').
-    };
-    */
-    
-    // 
     firebaseConnection.getBoards = function(){
         return fb_reference
             .child('boards').orderByChild('active').equalTo(true);

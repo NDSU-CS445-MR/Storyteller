@@ -8,6 +8,7 @@ angular.module('app').component('dashboard',{
 		vm.currentUserKey = vm.currentUser.key;
 		vm.location = "Admin Dashboard"
 		vm.search = "";
+		//Menu view state flags
 		vm.creatingNew = false;
 		vm.showBoardBlade = true;
 		vm.showUserBlade = false;
@@ -18,7 +19,9 @@ angular.module('app').component('dashboard',{
 		vm.showConfirm = false;
 		vm.backupData = {};
 		vm.activeData = {};
+		//Keep entire list of active boards
 		vm.boardsList = $firebaseArray(firebaseConnection.getBoards());
+		//Pull active user's authorizedBoards
 		if(vm.isAdmin){
 			vm.boards = $firebaseArray(firebaseConnection.getBoards());
 		}
@@ -27,10 +30,10 @@ angular.module('app').component('dashboard',{
 		}
 		vm.users = $firebaseArray(firebaseConnection.getUsers());
 
+		//Sets state flags depending on the object selected
 		vm.onClick_viewChild = function(type,data){
 			vm.creatingNew = false;
 			vm.activeData = angular.copy(data);
-      console.log(vm.activeData.$id);
 			vm.backupData = angular.copy(data);
 			switch(type){
 				case 'user':{
@@ -42,6 +45,7 @@ angular.module('app').component('dashboard',{
 				case 'board':{
 					vm.activeData.blackList = convertBlackList(vm.activeData.blackList);
           vm.activeData.statuses = $firebaseArray(firebaseConnection.getBoardByKey(vm.activeData.$id).child('statuses'));
+          vm.activeData.statuses.$loaded().then(vm.statusEngine.statusesReady);
 					vm.showUserDetail = false;
 					vm.showBoardDetail = true;
 					vm.showConfig = false;
@@ -49,7 +53,7 @@ angular.module('app').component('dashboard',{
 				}
 			}
 		}
-
+		//Sets state flags depending if Users or Boards is selected
 		vm.onClick_selectBlade = function(blade){
 			vm.creatingNew = false;
 			vm.activeData = {};
@@ -84,6 +88,7 @@ angular.module('app').component('dashboard',{
 				}
 			}
 		}
+
 		vm.onClick_authorizeBoard = function(board){
 			var boardData = {
 				name: board.name,
@@ -163,12 +168,14 @@ angular.module('app').component('dashboard',{
 			vm.showBoardDetail = false;
 			$('#confirmBoardDelete').modal('hide');
 		}
+		//Shows Board delete confirmation modal or hides it if it is already open
 		vm.onClick_showConfirm = function(){
 			vm.showConfirm = !vm.showConfirm;
 			if(!vm.showConfirm){
 				$('#confirmBoardDelete').modal('hide');
 			}
 		}
+		//Creates new user or board depending on current view state
 		vm.onClick_addNew = function(){
 			resetActiveDataUser()
 			vm.creatingNew = true;
@@ -179,10 +186,12 @@ angular.module('app').component('dashboard',{
 				vm.showBoardDetail = true;
 			}
 		}
+		//Navigates to the selected board
 		vm.onClick_openBoard = function(){
 			firebaseConnection.sessionStore.currentBoardKey = vm.activeData.$id || vm.activeData.key;
 			$location.path('/board');
 		}
+		//Used to filter the user's authorized boards in their profile section
 		vm.checkUserAuthorization = function(boardId){
 			if(vm.activeData.authorizedBoards && vm.activeData.authorizedBoards != 'null'){
 			return vm.activeData.authorizedBoards.findIndex(function(element){
@@ -222,6 +231,7 @@ angular.module('app').component('dashboard',{
 				vm.showBoardDetail = false;
 			}
 		}
+		//Converts the blacklist from the database array to a string for editing and vise versa
 		function convertBlackList(list){
 			var res = "";
 			if(typeof(list) == 'object'){
@@ -253,6 +263,138 @@ angular.module('app').component('dashboard',{
     
     vm.saveStatus = function(status) {
       vm.activeData.statuses.$save(status);
+    }
+    
+    vm.updateName = function(status) {
+      
+      var boardRef = firebaseConnection
+        .getBoardByKey(vm.activeData.$id);
+        
+      boardRef
+        .child('statuses')
+        .child(status.$id)
+        .once('value', function(status_snapshot) {
+          var oldName = status_snapshot.child('name').val();
+          boardRef
+            .child('stories')
+            .orderByChild('status')
+            .equalTo(oldName)
+            .once('value', function(snapshot) {
+              snapshot.forEach(function(story) {
+                boardRef
+                  .child('stories')
+                  .child(story.key)
+                  .update({
+                    status: status.name
+                  });
+              });
+            });
+        });
+        
+      vm.activeData.statuses.$save(status);
+    }
+    vm.newStatus = {
+      name: null,
+      color: '#FFFFFF',
+      display: true,
+      commit: function() {
+        var boardRef = firebaseConnection
+          .getBoardByKey(vm.activeData.$id);
+        
+        boardRef
+          .child('statuses')
+          .orderByChild('order')
+          .endAt(999)
+          .limitToLast(1)
+          .once('child_added', function(p) {
+            var newPosition = p.val().order + 1;
+            var newRef = firebaseConnection.createStatus(boardRef, {
+              name: vm.newStatus.name,
+              order: newPosition,
+              color: vm.newStatus.color,
+              deletable: true,
+              display: vm.newStatus.display,
+              allow_before: true
+            },
+            function() { vm.statusEngine.enableOrdering($('#' + newRef.key)); });
+            vm.newStatus.name = '';
+            vm.newStatus.color = '#FFFFFF';
+            vm.newStatus.display = true;
+          });
+      }
+    }
+    vm.statusEngine = {
+      statusesReady: function() {
+          vm.statusEngine.enableOrdering($('.status-edit'));
+      },
+      enableOrdering: function(q) {
+        $timeout(()=>{
+          q.droppable({
+              drop: vm.statusEngine.statusDropOnOtherStatus
+          });
+          q.draggable({
+              revert: true
+          });
+        });
+      },
+      statusDropOnOtherStatus: function(event, ui){
+        var dropOnKey = $(this).attr("id");
+        var droppingKey = ui.draggable.attr("id");
+        var boardRef = firebaseConnection
+          .getBoardByKey(vm.activeData.$id);
+      
+
+        boardRef
+          .child('statuses')
+          .child(droppingKey)
+          .once('value', function(dropping_snap) {
+            
+            if (!dropping_snap.val().allow_before)
+              return;
+            
+            var oldOrder = dropping_snap.val().order;
+            boardRef
+              .child('statuses')
+              .child(droppingKey)
+              .update({
+                order: null
+              })
+              .then(function() {                
+                boardRef
+                  .child('statuses')
+                  .child(dropOnKey)
+                  .once('value', function(dropOn_snap) {
+                    
+                    if (!dropOn_snap.val().allow_before) {
+                      boardRef
+                        .child('statuses')
+                        .child(droppingKey)
+                        .update({
+                          order: oldOrder
+                        })
+                      return;
+                    }
+                    var newOrder = dropOn_snap.val().order;
+                    firebaseConnection.pullStatusOrdersForward(
+                      boardRef,
+                      oldOrder,
+                      function() {
+                        firebaseConnection.shiftStatusOrdersIfConflict(
+                          boardRef,
+                          dropOn_snap.val().order,
+                          function() {
+                            boardRef
+                              .child('statuses')
+                              .child(droppingKey)
+                              .update({
+                                order: newOrder
+                              });
+                          });
+                      });
+                  });
+              });
+          });
+      },
     }
   }
 });
