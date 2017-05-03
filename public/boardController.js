@@ -39,7 +39,7 @@ function boardController (
         var target = $(".navbar-nav");
         
         /* inject new story button to navbar */
-        var injected_nav_item_new_story = $("<li><a>New Story</a></li>");
+        var injected_nav_item_new_story = $("<li><a>New Story!</a></li>");
         injected_nav_item_new_story.attr('ng-click', 'vm.newStoryModal.open();');
         target.append(injected_nav_item_new_story);
         
@@ -52,6 +52,11 @@ function boardController (
         var injected_nav_item_undo = $("<li><a>Undo</a></li>");
         injected_nav_item_undo.attr('ng-click', 'vm.history.undo();');
         target.append(injected_nav_item_undo);
+		
+		/* var injected_nav_item_filterDropdown =  */
+		var injected_nav_item_filterButton = $("<li><a>Filter by Role:</a></li>");
+		
+		target.append(injected_nav_item_filterButton);
         
         $compile(target)($scope);
     };
@@ -210,6 +215,8 @@ function boardController (
         },
     }
     
+    
+    
     vm.dragEngine = {
         draggableDropOnZone: function(event, ui){
             var position = ui.draggable.position();
@@ -241,6 +248,8 @@ function boardController (
     
     vm.statusEngine.initialize();
     
+    vm.rolePattern = /As a (\w+)\s+I want/;
+    
     vm.history = {
         undo: function() {
             console.error("not implemented");
@@ -269,7 +278,7 @@ function boardController (
             vm.board.child('stories').pull(story)
         },
         onBodyChange: function() {
-            //story.body = vm.activeStory.story.body;
+            story.body = vm.activeStory.story.body;
         },
         onStatusChange: function() {
             story.status = vm.activeStory.story.status;
@@ -281,6 +290,48 @@ function boardController (
             $('#active_story_screen').hide();
         }
     }
+    
+    vm.roleEngine = {
+        roleRef: vm.board.child("roles"),
+        
+        onRemoveStory: function onRemoveStory(role) {
+            vm.roleEngine.roleRef
+                .child(role)
+                .once("value", function(snapshot){
+                    var count = snapshot.val();
+                    
+                    if (count == 1) {
+                        vm.roleEngine.roleRef
+                            .child(role)
+                            .remove();
+                    }
+                    else 
+                    { 
+                        vm.roleEngine.roleRef
+                            .set({
+                                [role]: count-1
+                            });
+                    }
+                });          
+        },
+        
+        onAddStory: function onAddStory(role) {
+            vm.roleEngine.roleRef
+                .child(role)
+                .once("value", function(snapshot){
+                    console.log(snapshot.val());
+                    if (snapshot.val() == null) { // if it doesn't have an entry yet
+                        vm.roleEngine.roleRef.set({
+                            [role]: 1
+                        });
+                    } else { // if it already has an entry
+                        vm.roleEngine.roleRef.set({
+                            [role]: snapshot.val() + 1
+                        });
+                    }
+                });
+        },
+    };
     
     vm.newStoryTemplate = {
         body: null,
@@ -296,10 +347,15 @@ function boardController (
         commit: function commitNewStory() {
             // todo delegate to storyEngine
             flagBoardForAnalysis();
+            
+            
+            
             var newPostRef = vm.board.child('stories').push({
                 body: vm.newStoryTemplate.body,
                 name: vm.newStoryTemplate.name,
+                role: vm.newStoryTemplate.role,
             });
+            vm.roleEngine.onAddStory(vm.newStoryTemplate.role);
             var storyObj = $firebaseObject(newPostRef);
             storyObj.$loaded().then(function() {
                 vm.statusEngine.addStoryToStatus(storyObj, vm.newStoryTemplate.status);
@@ -320,6 +376,9 @@ function boardController (
                 // setTimeout is necessary because the above statement is not finished once it returns
                 setTimeout(function() { newStoryTextArea[0].setSelectionRange(selectStart, selectStart); }, 50);
             } else {
+                var myArray = this.body.match(vm.rolePattern);
+                
+                this.role = myArray[1];
                 this.bodySnapshot = this.body;
             }
         }
@@ -350,36 +409,45 @@ function boardController (
             });
     }
     
+    
+    
     vm.storyBodyChanged = function storyBodyChanged(story) {
-        flagBoardForAnalysis();
+		
+		flagBoardForAnalysis();
         var analysis = storyValidationClient.validStoryFormat(story.body);
-        
-        if (analysis.pass) {
-            vm.board.child('stories')
-                .child(story.$id)
-                .update({
-                    body: story.body || '',
-                });
-        } else {
-            var vm_story = vm.board.child('stories')
-                .child(story.$id);
                 
-            var vm_story = $firebaseObject(vm.board.child('stories').child(story.$id).child('body'));
-            
-            vm_story.$loaded().then(function snapshotLoaded() {
-                var snapshot = vm_story.$value;
+        var myArray = story.body.match(vm.rolePattern);
+        var vm_story = $firebaseObject(vm.board.child('stories').child(story.$id));
+        vm_story.$loaded().then(function snapshotLoaded() {
+            if (analysis.pass) {
+                
+				var update = {
+                    body: story.body || '',
+                };
+                var oldRole = vm_story.role;
+                if (oldRole != myArray[1]) {                    
+                    vm.roleEngine.onRemoveStory(oldRole);
+                    vm.roleEngine.onAddStory(myArray[1]);
+                    update["role"] = myArray[1];
+                }
+                vm.board.child('stories')
+                    .child(story.$id)
+                    .update(update);
+            } else {
+                
+                
                 var textArea = $("#" + story.$id).find("textarea.story_body_textarea");
                 var selectStart = textArea.prop('selectionStart');
-                if (story.body.length > snapshot.length) { // user inserted character to break formatting
+                if (story.body.length > vm_story.body.length) { // user inserted character to break formatting
                     selectStart -= 1;
                 } else { // user removed character to break formatting
                     selectStart += 1;
                 }
-                story.body = snapshot;
+                story.body = vm_story.body;
                 // setTimeout is necessary because the above statement is not finished once it returns
                 setTimeout(function() { textArea[0].setSelectionRange(selectStart, selectStart); }, 50);
-            });
-        }
+            }
+        });
     }
        
     
